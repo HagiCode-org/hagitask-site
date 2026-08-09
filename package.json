@@ -1,0 +1,32 @@
+{
+  "name": "hagitask-site",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "packageManager": "npm@10.9.7",
+  "scripts": {
+    "dev": "astro dev --host 0.0.0.0 --port ${PORT_WEBSITE:-43210}",
+    "start": "astro dev --host 0.0.0.0",
+    "build": "astro build",
+    "preview": "astro preview --port ${PORT_WEBSITE:-43210}",
+    "astro": "astro",
+    "sync": "astro sync",
+    "typecheck": "astro check",
+    "clean": "rm -rf .astro dist"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^5.0.2",
+    "@astrojs/sitemap": "^3.7.1",
+    "astro": "^6.0.7"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3"
+  },
+  "overrides": {
+    "vite": "^8.0.1"
+  },
+  "engines": {
+    "node": ">=22.12.0",
+    "npm": ">=9.0"
+  }
+}
