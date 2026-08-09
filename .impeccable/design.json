@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-09T15:01:35Z",
+  "title": "Design System: HagiTask Community",
+  "extensions": {
+    "colorMeta": {
+      "bg": {
+        "role": "neutral",
+        "displayName": "Console Black",
+        "canonical": "#0B0D12",
+        "description": "Global page background."
+      },
+      "fg": {
+        "role": "neutral",
+        "displayName": "Cloud White",
+        "canonical": "#E6E8EE",
+        "description": "Primary text and high-emphasis controls."
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Steel Gray",
+        "canonical": "#9AA3B2",
+        "description": "Supporting copy, versions, filters, and metadata."
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Workflow Blue",
+        "canonical": "#6D8BFF",
+        "description": "Interactive links, active states, focus, and metadata keys.",
+        "tonalRamp": [
+          "#17204D",
+          "#2E4188",
+          "#4E66C2",
+          "#6D8BFF",
+          "#9BACFF",
+          "#C8D1FF"
+        ]
+      },
+      "accent-secondary": {
+        "role": "accent",
+        "displayName": "Workflow Violet",
+        "canonical": "#8B5CF6",
+        "description": "Secondary gradient stop and ambient hero treatment."
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Community page hero title."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Localized summaries and general reading text."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Hero eyebrow text."
+      }
+    },
+    "motion": [
+      {
+        "name": "card-lift",
+        "value": "150ms ease",
+        "purpose": "Task-card border and transform transition."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "card-minimum",
+        "value": "280px",
+        "purpose": "Minimum task-card width in the responsive grid."
+      }
+    ]
+  },
+  "narrative": {
+    "northStar": "The Quiet Operations Console",
+    "overview": "A focused dark catalog for reusable HagiCode workflows. A nearly black foundation and subdued card surfaces keep task metadata easy to scan, while Workflow Blue identifies the small set of active and actionable states.",
+    "keyCharacteristics": [
+      "Centered single-column catalog constrained to 1080px.",
+      "Cool blue and violet reserved for hero and primary actions.",
+      "Subtle translucent cards separated by borders instead of shadows.",
+      "Compact compatibility metadata and tag treatment.",
+      "Bilingual English and Simplified Chinese content with shared structure."
+    ],
+    "rules": [
+      {
+        "name": "The Accent-Is-Action Rule",
+        "section": "colors",
+        "body": "Use blue for actionable, active, or focused states; a blue accent without a state or action is visual noise."
+      },
+      {
+        "name": "The Surface-Stays-Quiet Rule",
+        "section": "colors",
+        "body": "Cards use subtle white transparency and borders rather than opaque gray panels, gradients, or stacked shadows."
+      },
+      {
+        "name": "The Locale-Parity Rule",
+        "section": "typography",
+        "body": "Every visible English label that participates in content hierarchy has an equivalent Chinese label in the same component structure."
+      },
+      {
+        "name": "The Hover-Moves-a-Little Rule",
+        "section": "elevation",
+        "body": "Interactive task cards may lift by 2px over 150ms; controls communicate state through color, border, or underline before motion."
+      },
+      {
+        "name": "The Focus-Is-Visible Rule",
+        "section": "elevation",
+        "body": "Search fields use a 2px Workflow Blue outline with 1px offset. New interactive components must provide an equally visible keyboard focus treatment."
+      }
+    ],
+    "dos": [
+      "Keep content inside the 1080px page width and preserve the hero-to-toolbar-to-grid reading order.",
+      "Use #6D8BFF for focus, active filters, primary actions, and interactive text.",
+      "Preserve bilingual content pairs using the existing locale visibility classes.",
+      "Provide a visible focus style and explicit empty state for filterable collections."
+    ],
+    "donts": [
+      "Do not replace Console Black (#0B0D12) with bright white or mid-gray page surfaces.",
+      "Do not spread blue or violet gradients across cards, metadata, or body-copy areas.",
+      "Do not add persistent shadows, glassmorphism blur, glowing particles, or neon AI-tool styling.",
+      "Do not rely on color alone to communicate selected filters, focus state, or locale.",
+      "Do not introduce components that break English and Simplified Chinese structural parity."
+    ]
+  }
+}
