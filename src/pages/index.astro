@@ -1,0 +1,61 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Hero from '@/components/Hero.astro';
+---
+
+<BaseLayout title="HagiTask · 任务与流程管理">
+  <main>
+    <Hero
+      title="HagiTask"
+      subtitle="HagiCode 生态下的任务与流程管理站点。集中管理任务、看板与自动化工作流。"
+    />
+    <section class="features">
+      <div class="features__grid">
+        <article class="feature">
+          <h2>任务管理</h2>
+          <p>以结构化的方式创建、分配与跟踪任务，支持状态、优先级与标签。</p>
+        </article>
+        <article class="feature">
+          <h2>流程编排</h2>
+          <p>将重复工作抽象为可复用的流程，降低协作成本。</p>
+        </article>
+        <article class="feature">
+          <h2>生态集成</h2>
+          <p>与 HagiCode 其它服务打通，形成统一的协作体验。</p>
+        </article>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .features {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+
+  .features__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .feature {
+    padding: 1.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .feature h2 {
+    margin-top: 0;
+    font-size: 1.25rem;
+    color: var(--color-accent);
+  }
+
+  .feature p {
+    margin-bottom: 0;
+    color: var(--color-muted);
+  }
+</style>
