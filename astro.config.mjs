@@ -5,7 +5,7 @@ import mdx from '@astrojs/mdx';
 // https://astro.build/config
 export default defineConfig({
   // 站点完整 URL，用于生成 sitemap 与 canonical 链接
-  site: 'https://hagitask.hagicode.com',
+  site: 'https://tasks.hagicode.com',
   // 站点部署在根路径
   base: '/',
   markdown: {
