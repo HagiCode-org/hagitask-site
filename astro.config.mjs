@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import mdx from '@astrojs/mdx';
+import { communityPackages } from './src/integrations/communityPackages.ts';
 
 // https://astro.build/config
 export default defineConfig({
@@ -24,6 +25,7 @@ export default defineConfig({
   integrations: [
     sitemap(),
     mdx(),
+    communityPackages(),
   ],
   scopedStyleStrategy: 'where',
 });

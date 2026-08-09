@@ -7,7 +7,6 @@
   "scripts": {
     "dev": "astro dev --host 0.0.0.0 --port ${PORT_WEBSITE:-43210}",
     "start": "astro dev --host 0.0.0.0",
-    "prebuild": "tsx scripts/build-community.mjs",
     "build": "astro build",
     "preview": "astro preview --port ${PORT_WEBSITE:-43210}",
     "astro": "astro",
@@ -23,7 +22,6 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "tsx": "^4.23.11",
     "typescript": "~5.9.3"
   },
   "overrides": {
