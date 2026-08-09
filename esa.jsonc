@@ -1,0 +1,10 @@
+{
+  "name": "hagitask-site",
+  "entry": "./src/index.js",
+  "installCommand": "npm ci --include=dev",
+  "buildCommand": "npm run build",
+  "assets": {
+    "directory": "./dist",
+    "notFoundStrategy": "singlePageApplication"
+  }
+}
