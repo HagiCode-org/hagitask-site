@@ -1,0 +1,9 @@
+{
+  "name": "hagitask-site",
+  "installCommand": "echo nice",
+  "buildCommand": "echo nice",
+  "assets": {
+    "directory": "./dist",
+    "notFoundStrategy": "singlePageApplication"
+  }
+}

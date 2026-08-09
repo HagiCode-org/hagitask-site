@@ -1,0 +1,108 @@
+name: HagiTask Site Deploy gh-pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: hagitask-site-deploy-gh-pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "22.12.0"
+  NODE_ENV: production
+  HAGITASK_GH_PAGES_PAYLOAD_DIR: .deploy/gh-pages
+
+jobs:
+  build:
+    name: Prepare validated publication payload
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout current source ref
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and verify site
+        run: npm run build
+
+      - name: Assemble gh-pages publication payload
+        run: |
+          rm -rf "${HAGITASK_GH_PAGES_PAYLOAD_DIR}"
+          mkdir -p "${HAGITASK_GH_PAGES_PAYLOAD_DIR}/dist"
+          cp .github/gh-pages/esa.jsonc "${HAGITASK_GH_PAGES_PAYLOAD_DIR}/esa.jsonc"
+          cp .github/gh-pages/wrangler.jsonc "${HAGITASK_GH_PAGES_PAYLOAD_DIR}/wrangler.jsonc"
+          cp -R dist/. "${HAGITASK_GH_PAGES_PAYLOAD_DIR}/dist/"
+
+      - name: Upload validated gh-pages payload
+        uses: actions/upload-artifact@v4
+        with:
+          name: hagitask-site-gh-pages-payload
+          path: ${{ env.HAGITASK_GH_PAGES_PAYLOAD_DIR }}
+          if-no-files-found: error
+
+  deploy:
+    name: Publish validated snapshot to gh-pages
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+    environment:
+      name: hagitask-production
+      url: https://tasks.hagicode.com
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Download validated gh-pages payload
+        uses: actions/download-artifact@v4
+        with:
+          name: hagitask-site-gh-pages-payload
+          path: .deploy/gh-pages
+
+      - name: Publish validated gh-pages payload
+        id: publish-gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./.deploy/gh-pages
+          force_orphan: true
+          enable_jekyll: false
+
+      - name: Summarize deployment output
+        if: always()
+        env:
+          PUBLISH_OUTCOME: ${{ steps.publish-gh-pages.outcome }}
+        run: |
+          echo "## Publication status" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Publication source: validated build artifact" >> "$GITHUB_STEP_SUMMARY"
+          echo "- \`gh-pages\` publication: ${PUBLISH_OUTCOME}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Published payload: branch-root \`esa.jsonc\`, \`wrangler.jsonc\`, plus \`dist/\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- GitHub environment: hagitask-production" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Expected public URL: https://tasks.hagicode.com" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$PUBLISH_OUTCOME" = "success" ]; then
+            echo "Published the validated gh-pages payload with ./esa.jsonc, ./wrangler.jsonc, and ./dist/."
+          else
+            echo "Validated gh-pages publication did not complete successfully."
+          fi
