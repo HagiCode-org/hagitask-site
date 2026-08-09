@@ -2,6 +2,9 @@
 dist/
 .astro/
 
+# generated package archives (deterministic, rebuilt from the data/ submodule at build time)
+public/packages/
+
 # dependencies
 node_modules/
 
