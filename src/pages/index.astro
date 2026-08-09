@@ -1,61 +1,246 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import Hero from '@/components/Hero.astro';
+import TaskCard from '@/components/TaskCard.astro';
+import { getCatalog } from '@/lib/community-index';
+
+const { index } = getCatalog();
+const tasks = index.tasks;
+const categories = Array.from(new Set(tasks.map((t) => t.category))).sort();
 ---
 
-<BaseLayout title="HagiTask · 任务与流程管理">
-  <main>
-    <Hero
-      title="HagiTask"
-      subtitle="HagiCode 生态下的任务与流程管理站点。集中管理任务、看板与自动化工作流。"
-    />
-    <section class="features">
-      <div class="features__grid">
-        <article class="feature">
-          <h2>任务管理</h2>
-          <p>以结构化的方式创建、分配与跟踪任务，支持状态、优先级与标签。</p>
-        </article>
-        <article class="feature">
-          <h2>流程编排</h2>
-          <p>将重复工作抽象为可复用的流程，降低协作成本。</p>
-        </article>
-        <article class="feature">
-          <h2>生态集成</h2>
-          <p>与 HagiCode 其它服务打通，形成统一的协作体验。</p>
-        </article>
+<BaseLayout title="HagiTask · Community Tasks">
+  <main class="page">
+    <section class="hero">
+      <p class="hero__eyebrow">HagiCode · Community Tasks</p>
+      <h1 class="hero__title">
+        <span class="locale-en">HagiTask Community</span>
+        <span class="locale-zh">HagiTask 社区任务</span>
+      </h1>
+      <p class="hero__subtitle">
+        <span class="locale-en">Discover reusable workflows for HagiCode.</span>
+        <span class="locale-zh">发现可复用的 HagiCode 工作流。</span>
+      </p>
+      <div class="hero__actions">
+        <a class="hero__btn hero__btn--primary" href="/index.json">index.json</a>
+        <a class="hero__btn hero__btn--ghost" href="https://github.com/HagiCode-org/hagitask-site">
+          <span class="locale-en">Site source</span><span class="locale-zh">站点源码</span>
+        </a>
+        <div class="locale-toggle" role="group" aria-label="Language">
+          <button type="button" data-locale-toggle="en-US" class="locale-toggle__btn">EN</button>
+          <button type="button" data-locale-toggle="zh-CN" class="locale-toggle__btn">中文</button>
+        </div>
       </div>
+    </section>
+
+    <section class="toolbar">
+      <input
+        type="search"
+        id="task-search"
+        class="toolbar__search"
+        placeholder="Search tasks..."
+        aria-label="Search tasks"
+      />
+      <div class="toolbar__filters" id="category-filters">
+        <button type="button" class="chip chip--active" data-category="all">
+          <span class="locale-en">All</span><span class="locale-zh">全部</span>
+        </button>
+        {
+          categories.map((cat) => (
+            <button type="button" class="chip" data-category={cat}>
+              {cat}
+            </button>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="grid" id="task-grid">
+      {tasks.map((task) => <TaskCard task={task} />)}
+      <p class="grid__empty" id="grid-empty" hidden>
+        <span class="locale-en">No tasks match your filters.</span>
+        <span class="locale-zh">没有符合筛选条件的任务。</span>
+      </p>
     </section>
   </main>
 </BaseLayout>
 
+<script>
+  const search = document.getElementById('task-search') as HTMLInputElement | null;
+  const filters = document.getElementById('category-filters');
+  const grid = document.getElementById('task-grid');
+  const empty = document.getElementById('grid-empty');
+
+  function apply() {
+    if (!search || !grid) return;
+    const q = search.value.trim().toLowerCase();
+    const active = filters?.querySelector('.chip--active') as HTMLElement | null;
+    const category = active?.dataset.category ?? 'all';
+    let visible = 0;
+    grid.querySelectorAll<HTMLElement>('.task-card').forEach((card) => {
+      const tags = (card.dataset.tags ?? '').toLowerCase();
+      const name = card.textContent?.toLowerCase() ?? '';
+      const matchQ = q === '' || name.includes(q) || tags.includes(q);
+      const matchCat = category === 'all' || card.dataset.category === category;
+      const show = matchQ && matchCat;
+      card.hidden = !show;
+      if (show) visible++;
+    });
+    if (empty) empty.hidden = visible !== 0;
+  }
+
+  search?.addEventListener('input', apply);
+  filters?.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('.chip') as HTMLElement | null;
+    if (!btn) return;
+    filters.querySelectorAll('.chip').forEach((c) => c.classList.remove('chip--active'));
+    btn.classList.add('chip--active');
+    apply();
+  });
+</script>
+
 <style>
-  .features {
+  .page {
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: 4rem 1.5rem;
+    padding: 2.5rem 1.5rem 4rem;
   }
 
-  .features__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.5rem;
+  .hero {
+    text-align: center;
+    padding: 3rem 0 1.5rem;
+    background:
+      radial-gradient(60% 60% at 50% 0%, rgba(109, 139, 255, 0.18), transparent 70%),
+      radial-gradient(50% 50% at 80% 30%, rgba(139, 92, 246, 0.14), transparent 70%);
+    border-radius: 1.5rem;
   }
 
-  .feature {
-    padding: 1.75rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.02);
-  }
-
-  .feature h2 {
-    margin-top: 0;
-    font-size: 1.25rem;
+  .hero__eyebrow {
+    margin: 0 0 1rem;
     color: var(--color-accent);
+    font-size: 0.875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 
-  .feature p {
-    margin-bottom: 0;
+  .hero__title {
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    font-weight: 800;
+    background: linear-gradient(120deg, var(--color-fg), var(--color-accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hero__subtitle {
+    margin: 1rem auto 1.75rem;
+    max-width: 38rem;
     color: var(--color-muted);
+  }
+
+  .hero__actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .hero__btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.7rem 1.25rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .hero__btn--primary {
+    background: linear-gradient(120deg, var(--color-accent), var(--color-accent-2));
+    color: #fff;
+  }
+
+  .hero__btn--ghost {
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: var(--color-fg);
+  }
+
+  .locale-toggle {
+    display: inline-flex;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+
+  .locale-toggle__btn {
+    background: transparent;
+    color: var(--color-muted);
+    border: none;
+    padding: 0.7rem 0.9rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .locale-toggle__btn:hover {
+    color: var(--color-fg);
+  }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    margin: 2.5rem 0 1.5rem;
+  }
+
+  .toolbar__search {
+    flex: 1 1 220px;
+    padding: 0.7rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--color-fg);
+    font-size: 0.95rem;
+  }
+
+  .toolbar__search:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+  }
+
+  .toolbar__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .chip {
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: transparent;
+    color: var(--color-muted);
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+
+  .chip--active {
+    background: rgba(109, 139, 255, 0.16);
+    color: var(--color-accent);
+    border-color: rgba(109, 139, 255, 0.4);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .grid__empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--color-muted);
+    padding: 2rem;
   }
 </style>

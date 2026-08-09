@@ -11,7 +11,7 @@ const {
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en-US" data-locale="en-US">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,6 +21,20 @@ const {
   </head>
   <body>
     <slot />
+
+    <script is:inline>
+      (function () {
+        const saved = localStorage.getItem('hagitask-locale') || 'en-US';
+        document.documentElement.setAttribute('data-locale', saved);
+        document.addEventListener('click', function (e) {
+          const t = e.target.closest('[data-locale-toggle]');
+          if (!t) return;
+          const next = t.getAttribute('data-locale-toggle');
+          document.documentElement.setAttribute('data-locale', next);
+          localStorage.setItem('hagitask-locale', next);
+        });
+      })();
+    </script>
   </body>
 </html>
 
@@ -52,5 +66,29 @@ const {
     font-family: var(--font-sans);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+  }
+
+  .locale-zh {
+    display: none;
+  }
+
+  html[data-locale='zh-CN'] .locale-zh {
+    display: inline;
+  }
+
+  html[data-locale='zh-CN'] .locale-en {
+    display: none;
+  }
+
+  .locale-zh.block {
+    display: none;
+  }
+
+  html[data-locale='zh-CN'] .locale-zh.block {
+    display: block;
+  }
+
+  html[data-locale='zh-CN'] .locale-en.block {
+    display: none;
   }
 </style>

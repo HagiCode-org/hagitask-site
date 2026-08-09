@@ -1,0 +1,139 @@
+---
+import type { IndexEntry } from '@/lib/community-index';
+
+interface Props {
+  task: IndexEntry;
+}
+
+const { task } = Astro.props;
+const nameEn = task.name['en-US'] ?? Object.values(task.name)[0] ?? task.taskId;
+const nameZh = task.name['zh-CN'] ?? nameEn;
+const summaryEn = task.summary['en-US'] ?? '';
+const summaryZh = task.summary['zh-CN'] ?? summaryEn;
+const compat = task.compatibility;
+---
+
+<article class="task-card" data-category={task.category} data-tags={task.tags.join(' ')}>
+  <header class="task-card__head">
+    <h3 class="task-card__title">
+      <span class="locale-en">{nameEn}</span><span class="locale-zh">{nameZh}</span>
+    </h3>
+    <span class="task-card__version">v{task.version}</span>
+  </header>
+
+  <p class="task-card__summary">
+    <span class="locale-en block">{summaryEn}</span><span class="locale-zh block">{summaryZh}</span>
+  </p>
+
+  <ul class="task-card__meta">
+    <li><span class="task-card__key">Category</span> {task.category}</li>
+    <li><span class="task-card__key">Agent</span> {compat.agent}</li>
+    {
+      compat.skills.length > 0 && (
+        <li>
+          <span class="task-card__key">Skills</span> {compat.skills.join(', ')}
+        </li>
+      )
+    }
+    {
+      compat.cli.length > 0 && (
+        <li>
+          <span class="task-card__key">CLI</span> {compat.cli.map((c) => c.name).join(', ')}
+        </li>
+      )
+    }
+  </ul>
+
+  <div class="task-card__tags">
+    {task.tags.map((tag) => <span class="tag">#{tag}</span>)}
+  </div>
+
+  <a class="task-card__link" href={`/tasks/${task.taskId}/`}>
+    <span class="locale-en">View details</span><span class="locale-zh">查看详情</span>
+  </a>
+</article>
+
+<style>
+  .task-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+
+  .task-card:hover {
+    border-color: rgba(109, 139, 255, 0.5);
+    transform: translateY(-2px);
+  }
+
+  .task-card__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .task-card__title {
+    margin: 0;
+    font-size: 1.15rem;
+    color: var(--color-fg);
+  }
+
+  .task-card__version {
+    flex: none;
+    font-size: 0.8rem;
+    color: var(--color-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .task-card__summary {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.95rem;
+  }
+
+  .task-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+  }
+
+  .task-card__key {
+    color: var(--color-accent);
+  }
+
+  .task-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .tag {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(109, 139, 255, 0.12);
+    color: var(--color-accent);
+  }
+
+  .task-card__link {
+    margin-top: auto;
+    align-self: flex-start;
+    font-weight: 600;
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  .task-card__link:hover {
+    text-decoration: underline;
+  }
+</style>
