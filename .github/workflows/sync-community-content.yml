@@ -1,8 +1,8 @@
 name: Sync Community Content
 
 # Periodically (and on manual dispatch) checks the upstream Community `main` branch and,
-# when it has moved past the commit recorded by the `data` submodule, advances the
-# submodule pointer and pushes a commit to Site `main`. The existing
+# when it has moved past the commit recorded by the `community-packages` submodule,
+# advances the submodule pointer and pushes a commit to Site `main`. The existing
 # `HagiTask Site Deploy gh-pages` workflow picks up that push and rebuilds the site.
 #
 # This workflow is intentionally NOT triggered by `push`, so the commit it creates
@@ -23,7 +23,7 @@ permissions:
 
 env:
   COMMUNITY_REPO: "https://github.com/HagiCode-org/hagitask-community-packages.git"
-  SUBMODULE_PATH: "data"
+  SUBMODULE_PATH: "community-packages"
 
 jobs:
   sync-community:
@@ -69,7 +69,7 @@ jobs:
             echo "- Result: **no update needed**"
             echo "- Recorded commit: \`${{ steps.commits.outputs.recorded }}\`"
             echo "- Source commit: \`${{ steps.commits.outputs.source }}\`"
-            echo "- The \`data\` submodule already points at the latest Community \`main\`."
+            echo "- The \`community-packages\` submodule already points at the latest Community \`main\`."
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Update submodule pointer and push

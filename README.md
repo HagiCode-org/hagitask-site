@@ -14,6 +14,7 @@ HagiTask 站点 —— HagiCode 生态下的任务与流程管理前端站点。
 ## 开发
 
 ```bash
+git submodule update --init --recursive   # 拉取 community-packages 及其内嵌的 hagitask
 npm install
 npm run dev        # 默认 http://localhost:43210
 npm run build      # 产物输出到 dist/
@@ -49,12 +50,12 @@ tsconfig.json
 
 ## 社区内容同步
 
-站点内容来自 [`hagitask-community-packages`](https://github.com/HagiCode-org/hagitask-community-packages)，通过 `data/` Git submodule 挂载（见 `.gitmodules`，`path = data`，指向 Community 仓库）。
+站点内容来自 [`hagitask-community-packages`](https://github.com/HagiCode-org/hagitask-community-packages)，通过 `community-packages/` Git submodule 挂载（见 `.gitmodules`，`path = community-packages`，指向 Community 仓库）。任务包位于 `community-packages/data/<taskId>/`，其 Schema 权威来源是 Community 仓库内嵌的 `hagitask` nested submodule（`community-packages/hagitask/schemas`）。
 
-- `data` 子模块只记录一个 Community `main` 的提交指针，站点**不复制**社区内容。
-- `Sync Community Content` 工作流（` .github/workflows/sync-community-content.yml`）按 `schedule`（每日）与 `workflow_dispatch` 运行：比较 Community `main` 最新提交与 `data` 当前指针，若不同则只更新 `data` 指针并推送到 Site `main`。
+- `community-packages` 子模块只记录一个 Community `main` 的提交指针，站点**不复制**社区内容。
+- `Sync Community Content` 工作流（`.github/workflows/sync-community-content.yml`）按 `schedule`（每日）与 `workflow_dispatch` 运行：比较 Community `main` 最新提交与 `community-packages` 当前指针，若不同则只更新 `community-packages` 指针并推送到 Site `main`。
 - 该推送触发既有的 `HagiTask Site Deploy gh-pages` 工作流，复用站点构建与发布链路；`Sync Community Content` 本身**不**以 `push` 触发，因此不会自递归。
-- 工作流使用 `contents: write` 与 `concurrency` 串行锁；推送竞争失败时失败而非强制覆盖。`data` 以外的任何工作树改动都会中止推送。
+- 工作流使用 `contents: write` 与 `concurrency` 串行锁；推送竞争失败时失败而非强制覆盖。`community-packages` 以外的任何工作树改动都会中止推送。
 
 ## 包校验（提交前防线）
 
@@ -70,13 +71,13 @@ npm run validate      # 退出码非零即阻断合并
 
 ## 包结构与规范
 
-任务包目录名即 `taskId`（小写 kebab-case），必须与 `manifest.json` 的 `taskPresetId` 一致，且全局唯一。每个包包含 `manifest.json`、`backend/`、`frontend/`、`locales/`、`store-page/`。完整布局与贡献步骤见社区仓库 `README.md`。
+任务包目录名即 `taskId`（小写 kebab-case），必须与 `manifest.json` 的 `taskPresetId` 一致，且全局唯一。每个包位于 `community-packages/data/<taskId>/`，包含 `manifest.json`、`backend/`、`frontend/`、`locales/`、`store-page/`。完整布局与贡献步骤见社区仓库 `README.md`。
 
 ## 故障恢复
 
-- 同步失败（如 Community 不可达或 `data` 无法更新）：工作流以可操作错误失败，**不会**推送半成品状态；下一轮调度会重试。
+- 同步失败（如 Community 不可达或 `community-packages` 无法更新）：工作流以可操作错误失败，**不会**推送半成品状态；下一轮调度会重试。
 - 发布期校验失败：构建步骤失败，不会发布错误产物；修复在 Community 仓库的源文件后重新同步。
-- 需要回滚同步：停用 `Sync Community Content` 的 `schedule`（或删除该工作流），站点可继续使用最后一次已提交的 `data` 指针。
+- 需要回滚同步：停用 `Sync Community Content` 的 `schedule`（或删除该工作流），站点可继续使用最后一次已提交的 `community-packages` 指针。
 
 ## 关联仓库
 

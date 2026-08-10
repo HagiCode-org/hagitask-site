@@ -1,26 +1,44 @@
 /**
  * Community catalog loader, normalizer, validator, and package builder.
  *
- * Reads the `data/` Git submodule (repos/hagitask-community-packages), normalizes
- * each task into the v1 model, validates the emitted documents against the vendored
- * v1 schemas, computes deterministic package archives + SHA-256 digests, and minifies
- * every JSON document before publication.
+ * Reads the `community-packages/` Git submodule (repos/hagitask-community-packages),
+ * normalizes each task from `community-packages/data/<taskId>/` into the v1 model,
+ * validates the emitted documents against the authoritative v1 schemas loaded from
+ * the nested HagiTask submodule at `community-packages/hagitask/schemas/`, computes
+ * deterministic package archives + SHA-256 digests, and minifies every JSON document
+ * before publication.
  */
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { assertValid } from './jsonSchema';
 import { createZip, type ZipEntry } from './zip';
-import indexSchema from './schemas/community-index-v1.schema.json';
-import detailSchema from './schemas/community-task-detail-v1.schema.json';
 
 // Paths are resolved from the project root. Both `astro build` and the prebuild
-// script run with the site repository as the current working directory, and the
-// `data/` submodule and `public/` directory live there. (import.meta.url is not
-// used because the build bundles this module into dist/.prerender/.)
+// script run with the site repository as the current working directory. The site
+// mounts the Community repository as `community-packages/`, task packages live under
+// `community-packages/data/`, and the authoritative publication schemas are loaded
+// from the nested HagiTask submodule at `community-packages/hagitask/schemas/`.
+// (import.meta.url is not used because the build bundles this module into dist/.prerender/.)
 const ROOT = process.cwd();
-const DATA_DIR = join(ROOT, 'data');
+const COMMUNITY_ROOT = join(ROOT, 'community-packages');
+const DATA_DIR = join(COMMUNITY_ROOT, 'data');
+const SCHEMA_DIR = join(COMMUNITY_ROOT, 'hagitask', 'schemas');
 const PUBLIC_PACKAGES_DIR = join(ROOT, 'public', 'packages');
+
+function loadSchema(fileName: string): any {
+  const full = join(SCHEMA_DIR, fileName);
+  if (!existsSync(full)) {
+    throw new Error(
+      `Community publication schema not found at ${full}. ` +
+        `Initialize nested submodules with \`git submodule update --init --recursive\` before building.`,
+    );
+  }
+  return JSON.parse(readFileSync(full, 'utf8'));
+}
+
+const indexSchema = loadSchema('community-index-v1.schema.json');
+const detailSchema = loadSchema('community-task-detail-v1.schema.json');
 
 export const PUBLISHER = 'HagiCode';
 export const SOURCE_ROOT = 'https://github.com/HagiCode-org/hagitask-community-packages';
@@ -204,7 +222,7 @@ export function minify(doc: unknown): string {
 export function listTaskIds(): string[] {
   if (!existsSync(DATA_DIR) || !statSync(DATA_DIR).isDirectory()) {
     throw new Error(
-      `Community data submodule not found at ${DATA_DIR}. Run \`git submodule update --init\` before building.`,
+      `Community data not found at ${DATA_DIR}. Initialize the \`community-packages\` submodule and its nested submodules with \`git submodule update --init --recursive\` before building.`,
     );
   }
   return readdirSync(DATA_DIR, { withFileTypes: true })
@@ -316,7 +334,7 @@ function buildDetailDoc(task: NormalizedTask, generatedAt: string): DetailDoc {
       external: [
         {
           label: 'Source store page',
-          url: `${SOURCE_ROOT}/blob/main/${task.taskId}/store-page/index.en-US.md`,
+          url: `${SOURCE_ROOT}/blob/main/data/${task.taskId}/store-page/index.en-US.md`,
         },
       ],
     },
@@ -365,7 +383,7 @@ export function getCatalog(): Catalog {
   const generatedAt = new Date().toISOString();
   const ids = listTaskIds();
   if (ids.length === 0) {
-    throw new Error('No community tasks found in the data submodule.');
+    throw new Error('No community tasks found under community-packages/data.');
   }
 
   const seen = new Set<string>();

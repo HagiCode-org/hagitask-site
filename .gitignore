@@ -2,7 +2,7 @@
 dist/
 .astro/
 
-# generated package archives (deterministic, rebuilt from the data/ submodule at build time)
+# generated package archives (deterministic, rebuilt from the community-packages/ submodule at build time)
 public/packages/
 
 # dependencies

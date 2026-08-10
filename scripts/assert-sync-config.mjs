@@ -4,8 +4,9 @@
  * Verifies that `.github/workflows/sync-community-content.yml` is configured the way
  * the synchronization model requires (scheduled + manual trigger, write permission,
  * serialized concurrency, and no self-recursive `push` trigger) and that the expected
- * `data` submodule points at the Community repository. Run both locally and as the first
- * step of the sync workflow so a configuration drift fails loudly before any git push.
+ * `community-packages` submodule points at the Community repository. Run both locally
+ * and as the first step of the sync workflow so a configuration drift fails loudly
+ * before any git push.
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -33,18 +34,18 @@ if (!existsSync(workflowPath)) {
   // Recursion guard: the sync workflow must not trigger on push, or it would loop on its own commit.
   check(!/^\s*push:\s*$/m.test(wf), 'sync workflow must NOT trigger on `push:` (would recurse)');
   // It must reference the submodule path it is allowed to move.
-  check(/SUBMODULE_PATH:\s*["']data["']/m.test(wf), 'workflow must operate on the `data` submodule path');
+  check(/SUBMODULE_PATH:\s*["']community-packages["']/m.test(wf), 'workflow must operate on the `community-packages` submodule path');
 }
 
 if (!existsSync(gitmodulesPath)) {
   problems.push(`.gitmodules not found at ${gitmodulesPath}`);
 } else {
   const gm = readFileSync(gitmodulesPath, 'utf8');
-  check(/\[submodule\s+"data"\]/m.test(gm), '.gitmodules must declare the `data` submodule');
-  check(/path\s*=\s*data/m.test(gm), '.gitmodules `data` submodule must have `path = data`');
+  check(/\[submodule\s+"community-packages"\]/m.test(gm), '.gitmodules must declare the `community-packages` submodule');
+  check(/path\s*=\s*community-packages/m.test(gm), '.gitmodules `community-packages` submodule must have `path = community-packages`');
   check(
     /url\s*=\s*https:\/\/github\.com\/HagiCode-org\/hagitask-community-packages\.git/m.test(gm),
-    '.gitmodules `data` submodule must point at the Community repository',
+    '.gitmodules `community-packages` submodule must point at the Community repository',
   );
 }
 

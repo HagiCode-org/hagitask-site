@@ -29,8 +29,8 @@ HagiTask 是 HagiCode 生态下、面向"可复用任务包"的公开双语（en
 ## Operating Context
 
 - 站点是静态前端；后端业务逻辑与 API 在独立仓库 `repos/hagitask`。
-- 构建读取 `data/` Git 子模块（`hagitask-community-packages`）；构建前需 `git submodule update --init`。
-- 站点通过 `Sync Community Content` 工作流（定时 + 手动）将 `data` 子模块指针更新到 Community `main`，随后触发既有 `HagiTask Site Deploy gh-pages` 重建发布；同步只移动子模块指针，不复制或改写社区内容。
+- 构建读取 `community-packages/` Git 子模块（`hagitask-community-packages`），任务包位于 `community-packages/data/<taskId>/`；构建前需 `git submodule update --init --recursive`（同时拉取内嵌的 `hagitask` 子模块以取得权威 Schema）。
+- 站点通过 `Sync Community Content` 工作流（定时 + 手动）将 `community-packages` 子模块指针更新到 Community `main`，随后触发既有 `HagiTask Site Deploy gh-pages` 重建发布；同步只移动子模块指针，不复制或改写社区内容。
 - 社区包的提交前校验在 Community 仓库内完成（`validate-packages` required check，`npm run validate`）；站点构建期（`src/lib/community-index.ts` 的 `assertValid`）是发布前第二道防线。
 - 产物：`/index.json`、`/tasks/<taskId>.json`、`/packages/<taskId>.zip`。
 - 规范任务 ID（canonical）：`ui-master`、`claude-md-update`、`last30days`、`ponytail`、`goal`、`openspec-spec-compress`。`agentsmd` / `portytail` 仅为面向用户的别名，非规范 ID。

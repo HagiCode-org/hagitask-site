@@ -1,3 +1,7 @@
-[submodule "data"]
-	path = data
+# Community task packages are mounted at community-packages/. That repository
+# itself nests HagiTask at community-packages/hagitask/ as the authoritative
+# schema source, so every checkout must be recursive:
+#   git submodule update --init --recursive
+[submodule "community-packages"]
+	path = community-packages
 	url = https://github.com/HagiCode-org/hagitask-community-packages.git

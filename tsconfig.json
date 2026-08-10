@@ -13,5 +13,5 @@
     "downlevelIteration": true
   },
   "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist", "node_modules"]
+  "exclude": ["dist", "node_modules", "community-packages"]
 }

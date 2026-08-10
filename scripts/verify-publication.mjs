@@ -14,6 +14,7 @@ import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 
 const DIST = fileURLToPath(new URL('../dist', import.meta.url));
+const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 
 function fail(msg) {
   console.error(`✗ ${msg}`);
@@ -87,6 +88,33 @@ for (const entry of index.tasks) {
       fail(`${entry.taskId}: detail installation.size mismatch`);
     }
   }
+}
+
+// Canonical id coverage: the six shipped community tasks must be present and the
+// human-facing aliases must never be emitted as protocol ids.
+const EXPECTED_IDS = [
+  'ui-master',
+  'claude-md-update',
+  'last30days',
+  'ponytail',
+  'goal',
+  'openspec-spec-compress',
+];
+const ALIASES = ['agentsmd', 'portytail'];
+for (const id of EXPECTED_IDS) {
+  if (!ids.has(id)) fail(`Canonical task id missing from index: ${id}`);
+  else ok(`index includes canonical task ${id}`);
+}
+for (const alias of ALIASES) {
+  if (ids.has(alias)) fail(`Alias '${alias}' must not be emitted as a task id`);
+}
+
+// The site must not vendor its own schema copy; it loads the publication schemas
+// from the nested hagitask submodule (community-packages/hagitask/schemas).
+if (existsSync(join(REPO_ROOT, 'src', 'lib', 'schemas'))) {
+  fail('Site still vendors publication schemas at src/lib/schemas; load them from the nested hagitask submodule.');
+} else {
+  ok('Site loads publication schemas from the nested hagitask submodule (no duplicated copy)');
 }
 
 // no stray packages without index entries
