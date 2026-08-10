@@ -23,6 +23,9 @@ const summaryZh = detail.summary['zh-CN'] ?? summaryEn;
 const compat = detail.compatibility;
 const externalDocs = detail.documentation?.external ?? [];
 const hasRequirements = detail.requirements.length > 0;
+const packageSourceUrl = `${detail.source}/tree/main/${detail.taskId}`;
+const contributionGuideUrl = `${detail.source}#contribute-a-task`;
+const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/schemas';
 ---
 
 <BaseLayout title={`${nameEn} · HagiTask`}>
@@ -55,7 +58,10 @@ const hasRequirements = detail.requirements.length > 0;
       <div><dt><span class="locale-en">Version</span><span class="locale-zh">版本</span></dt><dd>v{detail.version}</dd></div>
       <div><dt><span class="locale-en">Category</span><span class="locale-zh">分类</span></dt><dd>{detail.category}</dd></div>
       <div><dt><span class="locale-en">Publisher</span><span class="locale-zh">发布者</span></dt><dd>{detail.publisher}</dd></div>
-      <div><dt><span class="locale-en">Source</span><span class="locale-zh">来源</span></dt><dd>{detail.source}</dd></div>
+      <div>
+        <dt><span class="locale-en">Source</span><span class="locale-zh">来源</span></dt>
+        <dd><a href={detail.source} target="_blank" rel="noreferrer">{detail.source}</a></dd>
+      </div>
     </dl>
 
     <section class="panel">
@@ -131,6 +137,32 @@ const hasRequirements = detail.requirements.length > 0;
         <li><span class="kv__k">Prompts</span><span class="kv__v">{detail.resources.prompts}</span></li>
         <li><span class="kv__k">Locales</span><span class="kv__v">{detail.resources.locales.join(', ')}</span></li>
         <li><span class="kv__k">Store page</span><span class="kv__v">{detail.resources.storePage.join(', ')}</span></li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2><span class="locale-en">Community</span><span class="locale-zh">社区</span></h2>
+      <ul class="kv">
+        <li>
+          <span class="kv__k"><span class="locale-en">Package source</span><span class="locale-zh">包源码</span></span>
+          <span class="kv__v"><a href={packageSourceUrl} target="_blank" rel="noreferrer">{detail.taskId}/</a></span>
+        </li>
+        <li>
+          <span class="kv__k"><span class="locale-en">Contribute</span><span class="locale-zh">贡献</span></span>
+          <span class="kv__v">
+            <a href={contributionGuideUrl} target="_blank" rel="noreferrer">
+              <span class="locale-en">Contribution guide</span><span class="locale-zh">贡献指南</span>
+            </a>
+          </span>
+        </li>
+        <li>
+          <span class="kv__k"><span class="locale-en">Schemas</span><span class="locale-zh">Schema</span></span>
+          <span class="kv__v">
+            <a href={schemaReferenceUrl} target="_blank" rel="noreferrer">
+              <span class="locale-en">Schema reference</span><span class="locale-zh">Schema 参考</span>
+            </a>
+          </span>
+        </li>
       </ul>
     </section>
   </main>
@@ -237,6 +269,11 @@ const hasRequirements = detail.requirements.length > 0;
   .facts dd {
     margin: 0;
     font-weight: 600;
+  }
+
+  .facts dd a {
+    color: var(--color-accent);
+    word-break: break-all;
   }
 
   .panel {

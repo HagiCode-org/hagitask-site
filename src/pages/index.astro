@@ -1,11 +1,13 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TaskCard from '@/components/TaskCard.astro';
-import { getCatalog } from '@/lib/community-index';
+import { getCatalog, SOURCE_ROOT } from '@/lib/community-index';
 
 const { index } = getCatalog();
 const tasks = index.tasks;
 const categories = Array.from(new Set(tasks.map((t) => t.category))).sort();
+const contributionGuideUrl = `${SOURCE_ROOT}#contribute-a-task`;
+const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/schemas';
 ---
 
 <BaseLayout title="HagiTask · Community Tasks">
@@ -22,6 +24,12 @@ const categories = Array.from(new Set(tasks.map((t) => t.category))).sort();
       </p>
       <div class="hero__actions">
         <a class="hero__btn hero__btn--primary" href="/index.json">index.json</a>
+        <a class="hero__btn hero__btn--ghost" href={contributionGuideUrl} target="_blank" rel="noreferrer">
+          <span class="locale-en">Contribute a task</span><span class="locale-zh">贡献 Task</span>
+        </a>
+        <a class="hero__btn hero__btn--ghost" href={schemaReferenceUrl} target="_blank" rel="noreferrer">
+          <span class="locale-en">Schema reference</span><span class="locale-zh">Schema 参考</span>
+        </a>
         <a class="hero__btn hero__btn--ghost" href="https://github.com/HagiCode-org/hagitask-site">
           <span class="locale-en">Site source</span><span class="locale-zh">站点源码</span>
         </a>
