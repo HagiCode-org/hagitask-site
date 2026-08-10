@@ -1,0 +1,35 @@
+---
+/**
+ * 51LA 访问统计集成组件。
+ * 仅在生产构建中输出脚本，开发环境不加载真实统计服务。
+ *
+ * @see https://www.51.la/
+ */
+const DEFAULT_51LA_ID = 'L6b88a5yK4h2Xnci';
+const laId = import.meta.env.VITE_51LA_ID || DEFAULT_51LA_ID;
+const shouldRender = import.meta.env.PROD;
+---
+
+{
+  shouldRender && (
+    <>
+      <script
+        is:inline
+        charset="UTF-8"
+        id="LA_COLLECT"
+        src="//sdk.51.la/js-sdk-pro.min.js"
+      />
+      <script is:inline define:vars={{ laId }}>
+        if (typeof LA !== 'undefined' && typeof LA.init === 'function') {
+          LA.init({
+            id: laId,
+            ck: laId,
+            autoTrack: true,
+            hashMode: true,
+            screenRecord: true,
+          });
+        }
+      </script>
+    </>
+  )
+}

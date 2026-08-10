@@ -1,4 +1,6 @@
 ---
+import AnalyticsScripts from '@/components/AnalyticsScripts.astro';
+
 interface Props {
   title?: string;
   description?: string;
@@ -18,6 +20,7 @@ const {
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
+    <AnalyticsScripts />
   </head>
   <body>
     <slot />

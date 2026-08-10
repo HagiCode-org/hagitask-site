@@ -1,0 +1,11 @@
+---
+/**
+ * 站点统计 provider 组合入口。
+ * 只负责组合，各 provider 自行判断是否在当前构建环境渲染。
+ */
+import Analytics51LA from '@/components/51LAAnalytics.astro';
+import GoogleAnalytics from '@/components/GoogleAnalytics.astro';
+---
+
+<Analytics51LA />
+<GoogleAnalytics />
