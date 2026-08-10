@@ -1,0 +1,112 @@
+name: Sync Community Content
+
+# Periodically (and on manual dispatch) checks the upstream Community `main` branch and,
+# when it has moved past the commit recorded by the `data` submodule, advances the
+# submodule pointer and pushes a commit to Site `main`. The existing
+# `HagiTask Site Deploy gh-pages` workflow picks up that push and rebuilds the site.
+#
+# This workflow is intentionally NOT triggered by `push`, so the commit it creates
+# cannot recursively trigger another sync run. Site `main` pushes still reach the
+# deploy workflow, which is what publishes the updated content.
+on:
+  schedule:
+    # Daily, off the top of the hour.
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: hagitask-site-sync-community
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  COMMUNITY_REPO: "https://github.com/HagiCode-org/hagitask-community-packages.git"
+  SUBMODULE_PATH: "data"
+
+jobs:
+  sync-community:
+    name: Sync community submodule
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assert workflow configuration
+        run: node scripts/assert-sync-config.mjs
+
+      - name: Checkout site with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Resolve Community main and recorded submodule commits
+        id: commits
+        run: |
+          set -euo pipefail
+          SOURCE_COMMIT="$(git ls-remote --heads "${COMMUNITY_REPO}" main | awk '{print $1}')"
+          if [ -z "${SOURCE_COMMIT}" ]; then
+            echo "::error::Could not resolve Community main commit from ${COMMUNITY_REPO}"
+            exit 1
+          fi
+          RECORDED_COMMIT="$(git ls-tree HEAD "${SUBMODULE_PATH}" | awk '{print $3}')"
+          if [ -z "${RECORDED_COMMIT}" ]; then
+            echo "::error::Could not read the recorded ${SUBMODULE_PATH} submodule commit"
+            exit 1
+          fi
+          echo "source=${SOURCE_COMMIT}" >> "$GITHUB_OUTPUT"
+          echo "recorded=${RECORDED_COMMIT}" >> "$GITHUB_OUTPUT"
+
+      - name: Summarize no-op when commits match
+        if: ${{ steps.commits.outputs.source == steps.commits.outputs.recorded }}
+        run: |
+          {
+            echo "## Community sync"
+            echo ""
+            echo "- Result: **no update needed**"
+            echo "- Recorded commit: \`${{ steps.commits.outputs.recorded }}\`"
+            echo "- Source commit: \`${{ steps.commits.outputs.source }}\`"
+            echo "- The \`data\` submodule already points at the latest Community \`main\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Update submodule pointer and push
+        if: ${{ steps.commits.outputs.source != steps.commits.outputs.recorded }}
+        run: |
+          set -euo pipefail
+          SOURCE_COMMIT="${{ steps.commits.outputs.source }}"
+          RECORDED_COMMIT="${{ steps.commits.outputs.recorded }}"
+
+          git -C "${SUBMODULE_PATH}" fetch origin "${SOURCE_COMMIT}"
+          git -C "${SUBMODULE_PATH}" checkout "${SOURCE_COMMIT}"
+
+          git add "${SUBMODULE_PATH}"
+
+          # Guard: only the expected submodule gitlink change may be committed.
+          CHANGED="$(git diff --cached --name-only)"
+          if [ "${CHANGED}" != "${SUBMODULE_PATH}" ]; then
+            echo "::error::Unexpected working-tree changes before push: ${CHANGED}"
+            git reset --keep || git reset --hard
+            exit 1
+          fi
+
+          SHORT="$(echo "${SOURCE_COMMIT}" | cut -c1-12)"
+          git commit -m "chore(sync): update community content submodule to ${SHORT}"
+
+          # Non-force push: if Site main moved concurrently, fail rather than overwrite.
+          if ! git push; then
+            echo "::error::Push was rejected (concurrent Site change). Retry on the next scheduled run."
+            git reset --hard HEAD~1
+            exit 1
+          fi
+
+          {
+            echo "## Community sync"
+            echo ""
+            echo "- Result: **updated**"
+            echo "- Recorded commit: \`${RECORDED_COMMIT}\`"
+            echo "- Source commit: \`${SOURCE_COMMIT}\`"
+            echo "- Pushed \`${SUBMODULE_PATH}\` pointer to Site \`main\`; the deploy workflow will rebuild."
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -40,6 +40,8 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: Initialize community data submodule
+        # Also picks up the pointer advanced by the "Sync Community Content" workflow,
+        # so a sync push to Site main is rebuilt here against the updated Community commit.
         run: git submodule update --init --recursive
 
       - name: Build and verify site
