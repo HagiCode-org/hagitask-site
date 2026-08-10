@@ -30,6 +30,8 @@ HagiTask 是 HagiCode 生态下、面向"可复用任务包"的公开双语（en
 
 - 站点是静态前端；后端业务逻辑与 API 在独立仓库 `repos/hagitask`。
 - 构建读取 `data/` Git 子模块（`hagitask-community-packages`）；构建前需 `git submodule update --init`。
+- 站点通过 `Sync Community Content` 工作流（定时 + 手动）将 `data` 子模块指针更新到 Community `main`，随后触发既有 `HagiTask Site Deploy gh-pages` 重建发布；同步只移动子模块指针，不复制或改写社区内容。
+- 社区包的提交前校验在 Community 仓库内完成（`validate-packages` required check，`npm run validate`）；站点构建期（`src/lib/community-index.ts` 的 `assertValid`）是发布前第二道防线。
 - 产物：`/index.json`、`/tasks/<taskId>.json`、`/packages/<taskId>.zip`。
 - 规范任务 ID（canonical）：`ui-master`、`claude-md-update`、`last30days`、`ponytail`、`goal`、`openspec-spec-compress`。`agentsmd` / `portytail` 仅为面向用户的别名，非规范 ID。
 - 本地化：默认 `en-US`，支持 `en-US` + `zh-CN`；要求双语结构对齐（locale parity）。
@@ -69,7 +71,7 @@ HagiTask 是 HagiCode 生态下、面向"可复用任务包"的公开双语（en
 ## Product Principles
 
 1. 真相源分离：内容只存在于子模块，站点仅做展示，绝不重复定义。
-2. 默认可验证：schema 校验 + SHA-256 完整性 + 确定性归档——以证据建立信任，而非宣称。
+2. 默认可验证：社区仓库提交前校验（`validate-packages` required check）+ 站点构建期 Schema 校验 + SHA-256 完整性 + 确定性归档——以证据建立信任，而非宣称。两层防线分别阻断不合格提交与不合格发布。
 3. 双语对齐：en-US 与 zh-CN 为第一等公民，结构共享，绝不偏废。
 4. 静态且克制：静态生成、无多余的运行时；呈现技术、冷静。
 5. 开放贡献：社区任务包经子模块以 semver 接受。
