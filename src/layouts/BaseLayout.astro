@@ -1,5 +1,6 @@
 ---
 import AnalyticsScripts from '@/components/AnalyticsScripts.astro';
+import Footer from '@/components/Footer.astro';
 
 interface Props {
   title?: string;
@@ -24,6 +25,8 @@ const {
   </head>
   <body>
     <slot />
+
+    <Footer />
 
     <script is:inline>
       (function () {

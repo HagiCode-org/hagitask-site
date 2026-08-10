@@ -1,0 +1,87 @@
+---
+import { hagicodeCompliance } from '@/config/compliance';
+
+const year = new Date().getFullYear();
+const { icp, publicSecurity } = hagicodeCompliance;
+---
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <p class="site-footer__copyright">HagiTask · © {year} Hagicode</p>
+    <ul class="site-footer__filings">
+      <li>
+        <a
+          class="site-footer__link"
+          href={icp.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={icp.ariaLabel}
+        >
+          {icp.label}
+        </a>
+      </li>
+      <li>
+        <a
+          class="site-footer__link"
+          href={publicSecurity.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={publicSecurity.ariaLabel}
+        >
+          {publicSecurity.label}
+        </a>
+      </li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 2rem 1.5rem;
+  }
+
+  .site-footer__inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: center;
+    color: var(--color-muted);
+    font-size: 0.875rem;
+  }
+
+  .site-footer__copyright {
+    margin: 0;
+  }
+
+  .site-footer__filings {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 1.5rem;
+  }
+
+  .site-footer__link {
+    color: var(--color-muted);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .site-footer__link:hover,
+  .site-footer__link:focus-visible {
+    color: var(--color-fg);
+    text-decoration: underline;
+  }
+
+  @media (max-width: 640px) {
+    .site-footer__filings {
+      flex-direction: column;
+    }
+  }
+</style>
