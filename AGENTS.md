@@ -44,3 +44,9 @@ node scripts/assert-sync-config.mjs   # 校验同步工作流配置
 - 修改 `astro.config.mjs` 的 `site` 字段会改变 sitemap 与 canonical URL，部署前需确认。
 - 不要将构建产物（`dist/`、`.astro/`）提交进仓库。
 - 不要手工修改 `community-packages.commit`，也不要把本地 `community-packages/` checkout 提交进仓库；同步状态由 `Sync Community Content` 工作流负责写入。
+
+## 共享站点壳层
+
+- `BaseLayout.astro` 统一挂载 `Header` 与 `Footer`，并集中管理 `hagitask-locale`、`hagitask-theme` 偏好。
+- 页面内容使用 `--max-width`、`--content-gap`、`--color-surface` 和 `--color-border` 等共享 token；双语文案继续使用 `.locale-en` / `.locale-zh`。
+- 新增外部链接必须使用 `target="_blank"` 时同时设置 `rel="noopener noreferrer"`；可选推广内容应通过 `PromoteCard` 的有效数据校验后再渲染。
