@@ -16,10 +16,13 @@ HagiTask 站点 —— HagiCode 生态下的任务与流程管理前端站点。
 ```bash
 git submodule update --init --recursive   # 拉取 community-packages 及其内嵌的 hagitask
 npm install
-npm run dev        # 默认 http://localhost:43210
-npm run build      # 产物输出到 dist/
-npm run preview    # 预览构建产物
-npm run typecheck  # astro check
+npm run dev            # 默认 http://localhost:43210
+npm run build          # 产物输出到 dist/
+npm run stage:schemas  # 将权威 Schema 复制到 dist/schemas/
+npm run preview        # 预览构建产物
+npm run typecheck      # astro check
+npm run verify         # 校验发布产物（index/detail、ZIP 摘要、dist/schemas/）
+npm test               # 发布产物脚本的单元测试
 ```
 
 ## 目录结构
@@ -68,6 +71,15 @@ npm run validate      # 退出码非零即阻断合并
 ```
 
 `validate-packages` 是该仓库对 `main` 的 **required status check**。站点构建期（`src/lib/community-index.ts` 的 `assertValid`）继续对生成的 `/index.json`、`/tasks/<taskId>.json` 做最终 Schema 校验，形成提交前与发布前两级防线。
+
+## Schema 发布
+
+站点在 `https://tasks.hagicode.com/schemas/` 下发布 HagiTask 的 9 份权威 Schema（2 份 community 目录/详情 Schema 加 7 份 `task-preset-plugin/` 包 Schema），公开路径与源码目录一一对应，例如 `schemas/task-preset-plugin/manifest.schema.json` 对应 `https://tasks.hagicode.com/schemas/task-preset-plugin/manifest.schema.json`。
+
+- 发布来源不是站点子模块：`HagiTask Site Deploy gh-pages` 工作流在构建后单独把 `HagiCode-org/hagitask` 下载到 runner 临时目录，ref 取自 `community-packages` 记录的 `hagitask` gitlink commit（取不到时回落到 `main`），并把实际 commit 写入 job summary，避免公开 Schema 与校验版本漂移。
+- `npm run stage:schemas`（`scripts/schema-payload.mjs`）把该临时目录的 `schemas/` 原样复制到 `dist/schemas/`；本地不设 `HAGITASK_SCHEMA_SOURCE_DIR` 时默认使用 `community-packages/hagitask/schemas`。
+- `npm run verify` 检查 9 个 Schema 均存在且可解析为 JSON，任一缺失或损坏都会在发布前失败。
+- 站点自身不保存 Schema 副本，`dist/schemas/` 只在构建期生成。
 
 ## 包结构与规范
 

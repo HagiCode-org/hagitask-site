@@ -33,6 +33,12 @@ node scripts/assert-sync-config.mjs   # 校验同步工作流配置
 - `Sync Community Content` 工作流（`.github/workflows/sync-community-content.yml`）定时/手动把 `community-packages` 指针更新到 Community `main`，并触发 `HagiTask Site Deploy gh-pages` 重建发布。
 - 包的提交前校验在 Community 仓库内完成（`npm run validate`），本站点是发布前第二道防线。
 
+## Schema 发布
+
+- 站点把 HagiTask 的 9 份权威 Schema 发布到 `/schemas/**`，公开根地址为 `https://tasks.hagicode.com/schemas/`，路径与源码目录一一对应。
+- 发布来源由 deploy 工作流单独下载：构建后把 `HagiCode-org/hagitask` clone 到 runner 临时目录（ref 取 `community-packages` 的 `hagitask` gitlink commit），再由 `npm run stage:schemas` 复制到 `dist/schemas/`。HagiTask 不是本仓库的子模块。
+- 不要把 Schema 复制进站点源码；`scripts/schema-payload.mjs` 的 `EXPECTED_SCHEMA_PATHS` 是发布契约，新增或删除权威 Schema 时同步更新它和 `test/schema-payload.test.mjs`。
+
 ## 注意事项
 
 - 修改 `astro.config.mjs` 的 `site` 字段会改变 sitemap 与 canonical URL，部署前需确认。
