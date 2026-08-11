@@ -1,7 +1,4 @@
-# Community task packages are mounted at community-packages/. That repository
-# itself nests HagiTask at community-packages/hagitask/ as the authoritative
-# schema source, so every checkout must be recursive:
-#   git submodule update --init --recursive
-[submodule "community-packages"]
-	path = community-packages
-	url = https://github.com/HagiCode-org/hagitask-community-packages.git
+# HagiTask Site no longer mounts the Community repository as a Git submodule.
+# The deploy workflow checks out an exact Community commit at build time into a
+# runner-local directory pointed at by HAGITASK_COMMUNITY_SOURCE_DIR, and the
+# published Community commit is persisted in community-packages.commit.
