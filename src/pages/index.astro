@@ -9,17 +9,11 @@ const tasks = index.tasks;
 const categories = Array.from(new Set(tasks.map((t) => t.category))).sort();
 const contributionGuideUrl = `${SOURCE_ROOT}#contribute-a-task`;
 const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/schemas';
-const promotion = {
-  title: { 'en-US': 'Build with HagiCode', 'zh-CN': '使用 HagiCode 构建' },
-  description: { 'en-US': 'Explore reusable tasks and contribute your own workflows.', 'zh-CN': '探索可复用任务，也可以贡献你的工作流。' },
-  href: 'https://github.com/HagiCode-org/hagitask',
-  label: { 'en-US': 'Explore the community', 'zh-CN': '探索社区' },
-};
 ---
 
 <BaseLayout title="HagiTask · Community Tasks">
   <main class="page">
-    <PromoteCard promotion={promotion} />
+    <PromoteCard />
     <section class="hero">
       <p class="hero__eyebrow">HagiCode · Community Tasks</p>
       <h1 class="hero__title">

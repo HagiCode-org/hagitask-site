@@ -71,13 +71,10 @@ const { title = 'HagiTask', description = 'HagiTask 是 HagiCode 生态下的任
             else if (close) { menu?.setAttribute('hidden', ''); document.body.style.overflow = ''; }
             document.querySelector('[data-menu-toggle]')?.setAttribute('aria-expanded', open ? 'true' : 'false');
           }
-          const promote = target.closest('[data-promote-close]');
-          if (promote) { promote.closest('[data-promote-card]')?.setAttribute('hidden', ''); try { localStorage.setItem('hagitask-promotion-dismissed', 'true'); } catch {} }
         });
         document.addEventListener('keydown', (event) => {
           if (event.key === 'Escape') { document.querySelector('[data-mobile-navigation]')?.setAttribute('hidden', ''); document.body.style.overflow = ''; document.querySelector('[data-menu-toggle]')?.setAttribute('aria-expanded', 'false'); }
         });
-        try { if (localStorage.getItem('hagitask-promotion-dismissed') === 'true') document.querySelector('[data-promote-card]')?.setAttribute('hidden', ''); } catch {}
       })();
     </script>
   </body>

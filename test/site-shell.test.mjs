@@ -35,8 +35,9 @@ test('Footer contains grouped information architecture and safe external links',
 
 test('PromoteCard is optional, bilingual, dismissible, and safe', () => {
   const card = read('components/PromoteCard.astro');
-  assert.match(card, /promotion\?/);
+  const loader = read('lib/promote-loader.ts');
+  assert.match(card, /loadFirstActivePromotion/);
+  assert.match(loader, /index-catalog/);
   assert.match(card, /data-promote-close/);
   assert.match(card, /noopener noreferrer/);
-  assert.match(card, /valid = promotion/);
 });
