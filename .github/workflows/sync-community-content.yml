@@ -32,11 +32,11 @@ jobs:
     name: Sync community content
     runs-on: ubuntu-latest
     steps:
-      - name: Assert workflow configuration
-        run: node scripts/assert-sync-config.mjs
-
       - name: Checkout site
         uses: actions/checkout@v4
+
+      - name: Assert workflow configuration
+        run: node scripts/assert-sync-config.mjs
 
       - name: Configure git identity
         run: |
