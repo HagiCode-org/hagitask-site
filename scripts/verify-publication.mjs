@@ -7,11 +7,13 @@
  *  - the archive SHA-256 matches the index and detail digests
  *  - every published JSON document is minified (no formatting whitespace)
  *  - detailUrl / packageUrl resolve within the publication payload
+ *  - every authoritative HagiTask schema is staged under dist/schemas/ and parses
  */
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
+import { EXPECTED_SCHEMA_PATHS, verifySchemaPayload } from './schema-payload.mjs';
 
 const DIST = fileURLToPath(new URL('../dist', import.meta.url));
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
@@ -115,6 +117,14 @@ if (existsSync(join(REPO_ROOT, 'src', 'lib', 'schemas'))) {
   fail('Site still vendors publication schemas at src/lib/schemas; load them from the nested hagitask submodule.');
 } else {
   ok('Site loads publication schemas from the nested hagitask submodule (no duplicated copy)');
+}
+
+// The authoritative HagiTask schemas must ship with the payload so that the
+// `$schema` URLs used by community packages resolve on the published host.
+const schemaErrors = verifySchemaPayload(DIST);
+for (const e of schemaErrors) fail(e);
+if (schemaErrors.length === 0) {
+  ok(`dist/schemas/ publishes all ${EXPECTED_SCHEMA_PATHS.length} authoritative schemas`);
 }
 
 // no stray packages without index entries
