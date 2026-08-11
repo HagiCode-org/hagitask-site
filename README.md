@@ -4,6 +4,13 @@ HagiTask Site is the frontend site for task and workflow management within the H
 
 Visit the site: https://tasks.hagicode.com/
 
+## HagiTask guides
+
+- [HagiTask introduction](https://docs.hagicode.com/guides/hagitask/introduction/)
+- [Installation guide](https://docs.hagicode.com/guides/hagitask/installation/)
+- [Usage guide](https://docs.hagicode.com/guides/hagitask/usage/)
+- [Community contribution guide](https://docs.hagicode.com/guides/hagitask/community/)
+
 ## Related repositories
 
 - Community packages source: `hagitask-community-packages` (`https://github.com/HagiCode-org/hagitask-community-packages`)
