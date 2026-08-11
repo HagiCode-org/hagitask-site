@@ -1,17 +1,18 @@
 name: Sync Community Content
 
 # Periodically (and on manual dispatch) checks the upstream Community `main` branch and,
-# when it has moved past the commit recorded by the `community-packages` submodule,
-# advances the submodule pointer and pushes a commit to Site `main`. The existing
-# `HagiTask Site Deploy gh-pages` workflow picks up that push and rebuilds the site.
+# when it has moved past the commit recorded in `community-packages.commit`, triggers the
+# `HagiTask Site Deploy gh-pages` workflow for that exact commit. The deploy builds and
+# publishes; only after it succeeds does this workflow write the new commit back to the
+# state file and push it to Site `main`.
 #
-# This workflow is intentionally NOT triggered by `push`, so the commit it creates
-# cannot recursively trigger another sync run. Site `main` pushes still reach the
-# deploy workflow, which is what publishes the updated content.
+# This workflow is intentionally NOT triggered by `push`, so the state-file commit it
+# creates cannot recursively trigger another sync run. The deploy workflow additionally
+# ignores `community-packages.commit` on `push` so recording state never republishes.
 on:
   schedule:
-    # Daily, off the top of the hour.
-    - cron: "17 4 * * *"
+    # Every hour, off the top of the hour.
+    - cron: "17 * * * *"
   workflow_dispatch:
 
 concurrency:
@@ -20,30 +21,29 @@ concurrency:
 
 permissions:
   contents: write
+  actions: write
 
 env:
   COMMUNITY_REPO: "https://github.com/HagiCode-org/hagitask-community-packages.git"
-  SUBMODULE_PATH: "community-packages"
+  DEPLOY_WORKFLOW: "deploy-gh-pages.yml"
 
 jobs:
   sync-community:
-    name: Sync community submodule
+    name: Sync community content
     runs-on: ubuntu-latest
     steps:
       - name: Assert workflow configuration
         run: node scripts/assert-sync-config.mjs
 
-      - name: Checkout site with submodules
+      - name: Checkout site
         uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - name: Configure git identity
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Resolve Community main and recorded submodule commits
+      - name: Resolve Community main and recorded commits
         id: commits
         run: |
           set -euo pipefail
@@ -52,9 +52,13 @@ jobs:
             echo "::error::Could not resolve Community main commit from ${COMMUNITY_REPO}"
             exit 1
           fi
-          RECORDED_COMMIT="$(git ls-tree HEAD "${SUBMODULE_PATH}" | awk '{print $3}')"
-          if [ -z "${RECORDED_COMMIT}" ]; then
-            echo "::error::Could not read the recorded ${SUBMODULE_PATH} submodule commit"
+          if [ ! -f community-packages.commit ]; then
+            echo "::error::community-packages.commit is missing; initialize it with a known-good Community commit."
+            exit 1
+          fi
+          RECORDED_COMMIT="$(tr -d '[:space:]' < community-packages.commit)"
+          if ! printf '%s' "${RECORDED_COMMIT}" | grep -Eq '^[0-9a-f]{40}$'; then
+            echo "::error::community-packages.commit must contain exactly one 40-character lowercase SHA (found: ${RECORDED_COMMIT})"
             exit 1
           fi
           echo "source=${SOURCE_COMMIT}" >> "$GITHUB_OUTPUT"
@@ -69,44 +73,80 @@ jobs:
             echo "- Result: **no update needed**"
             echo "- Recorded commit: \`${{ steps.commits.outputs.recorded }}\`"
             echo "- Source commit: \`${{ steps.commits.outputs.source }}\`"
-            echo "- The \`community-packages\` submodule already points at the latest Community \`main\`."
+            echo "- \`community-packages.commit\` already points at the latest Community \`main\`."
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Update submodule pointer and push
+      - name: Trigger deployment for the new commit
+        id: deploy-trigger
         if: ${{ steps.commits.outputs.source != steps.commits.outputs.recorded }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEPLOY_WORKFLOW: ${{ env.DEPLOY_WORKFLOW }}
+          SOURCE_COMMIT: ${{ steps.commits.outputs.source }}
+          RECORDED_COMMIT: ${{ steps.commits.outputs.recorded }}
         run: |
           set -euo pipefail
-          SOURCE_COMMIT="${{ steps.commits.outputs.source }}"
-          RECORDED_COMMIT="${{ steps.commits.outputs.recorded }}"
+          echo "Triggering ${DEPLOY_WORKFLOW} for Community commit ${SOURCE_COMMIT}"
+          gh workflow run "${DEPLOY_WORKFLOW}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --ref main \
+            -f community_commit="${SOURCE_COMMIT}"
 
-          git -C "${SUBMODULE_PATH}" fetch origin "${SOURCE_COMMIT}"
-          git -C "${SUBMODULE_PATH}" checkout "${SOURCE_COMMIT}"
+          # Locate the run we just triggered (most recent run of the deploy workflow on main).
+          deadline=$(( $(date +%s) + 600 ))
+          run_id=""
+          while [ -z "${run_id}" ]; do
+            run_id="$(gh run list --repo "${GITHUB_REPOSITORY}" --workflow="${DEPLOY_WORKFLOW}" --branch=main --limit=1 --json=databaseId --jq '.[0].databaseId // empty')"
+            if [ -z "${run_id}" ]; then
+              if [ "$(date +%s)" -gt "${deadline}" ]; then
+                echo "::error::Timed out waiting for the deploy run to appear."
+                exit 1
+              fi
+              sleep 10
+            fi
+          done
+          echo "run-id=${run_id}" >> "$GITHUB_OUTPUT"
 
-          git add "${SUBMODULE_PATH}"
+          # Wait for the deploy run to finish (hard cap ~30 min).
+          deadline=$(( $(date +%s) + 1800 ))
+          while :; do
+            status="$(gh run view "${run_id}" --repo "${GITHUB_REPOSITORY}" --json=status --jq '.status')"
+            if [ "${status}" = "completed" ]; then break; fi
+            if [ "$(date +%s)" -gt "${deadline}" ]; then
+              echo "::error::Timed out waiting for deploy run ${run_id}."
+              exit 1
+            fi
+            sleep 30
+          done
 
-          # Guard: only the expected submodule gitlink change may be committed.
-          CHANGED="$(git diff --cached --name-only)"
-          if [ "${CHANGED}" != "${SUBMODULE_PATH}" ]; then
-            echo "::error::Unexpected working-tree changes before push: ${CHANGED}"
-            git reset --keep || git reset --hard
+          conclusion="$(gh run view "${run_id}" --repo "${GITHUB_REPOSITORY}" --json=conclusion --jq '.conclusion')"
+          echo "conclusion=${conclusion}" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Community sync"
+            echo ""
+            echo "- Result: **deployment triggered**"
+            echo "- Recorded commit: \`${RECORDED_COMMIT}\`"
+            echo "- Source commit: \`${SOURCE_COMMIT}\`"
+            echo "- Deploy run: ${run_id} (${conclusion})"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "${conclusion}" != "success" ]; then
+            echo "::error::Deployment run ${run_id} did not succeed (conclusion: ${conclusion}). State file was NOT updated; retry on the next run."
             exit 1
           fi
 
-          SHORT="$(echo "${SOURCE_COMMIT}" | cut -c1-12)"
-          git commit -m "chore(sync): update community content submodule to ${SHORT}"
-
+      - name: Record published commit
+        if: ${{ steps.commits.outputs.source != steps.commits.outputs.recorded && steps.deploy-trigger.outputs.conclusion == 'success' }}
+        env:
+          SOURCE_COMMIT: ${{ steps.commits.outputs.source }}
+        run: |
+          set -euo pipefail
+          printf '%s\n' "${SOURCE_COMMIT}" > community-packages.commit
+          git add community-packages.commit
+          git commit -m "chore(sync): record published Community commit ${SOURCE_COMMIT}"
           # Non-force push: if Site main moved concurrently, fail rather than overwrite.
           if ! git push; then
             echo "::error::Push was rejected (concurrent Site change). Retry on the next scheduled run."
             git reset --hard HEAD~1
             exit 1
           fi
-
-          {
-            echo "## Community sync"
-            echo ""
-            echo "- Result: **updated**"
-            echo "- Recorded commit: \`${RECORDED_COMMIT}\`"
-            echo "- Source commit: \`${SOURCE_COMMIT}\`"
-            echo "- Pushed \`${SUBMODULE_PATH}\` pointer to Site \`main\`; the deploy workflow will rebuild."
-          } >> "$GITHUB_STEP_SUMMARY"

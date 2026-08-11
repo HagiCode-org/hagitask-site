@@ -2,8 +2,12 @@
 dist/
 .astro/
 
-# generated package archives (deterministic, rebuilt from the community-packages/ submodule at build time)
+# generated package archives (deterministic, rebuilt from the Community source at build time)
 public/packages/
+
+# local Community checkout used as a dev fallback for HAGITASK_COMMUNITY_SOURCE_DIR.
+# The published commit is tracked separately in community-packages.commit.
+community-packages/
 
 # dependencies
 node_modules/

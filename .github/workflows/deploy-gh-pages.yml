@@ -4,7 +4,19 @@ on:
   push:
     branches:
       - main
+    # The sync workflow commits only `community-packages.commit`; ignore that
+    # state-only push so recording a successful publish does not recurse into
+    # another deployment.
+    paths-ignore:
+      - community-packages.commit
   workflow_dispatch:
+    inputs:
+      community_commit:
+        description: >
+          Exact Community (hagitask-community-packages) commit to build and publish.
+          When omitted, the deploy reads the recorded commit from community-packages.commit.
+        required: false
+        type: string
 
 concurrency:
   group: hagitask-site-deploy-gh-pages
@@ -17,8 +29,7 @@ env:
   NODE_VERSION: "22.12.0"
   NODE_ENV: production
   HAGITASK_GH_PAGES_PAYLOAD_DIR: .deploy/gh-pages
-  HAGITASK_SCHEMA_SOURCE_REPO: https://github.com/HagiCode-org/hagitask.git
-  HAGITASK_SCHEMA_SOURCE_FALLBACK_REF: main
+  COMMUNITY_REPO: "https://github.com/HagiCode-org/hagitask-community-packages.git"
 
 jobs:
   build:
@@ -29,8 +40,54 @@ jobs:
     steps:
       - name: Checkout current source ref
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      - name: Resolve Community commit
+        id: community
+        run: |
+          set -euo pipefail
+          if [ -n "${{ inputs.community_commit }}" ]; then
+            requested="${{ inputs.community_commit }}"
+            origin="workflow input (community_commit)"
+          else
+            if [ ! -f community-packages.commit ]; then
+              echo "::error::community-packages.commit is missing. Provide community_commit input or commit the state file."
+              exit 1
+            fi
+            requested="$(tr -d '[:space:]' < community-packages.commit)"
+            origin="community-packages.commit state file"
+          fi
+          if ! printf '%s' "${requested}" | grep -Eq '^[0-9a-f]{40}$'; then
+            echo "::error::Resolved Community commit is not a valid 40-character lowercase SHA: ${requested}"
+            exit 1
+          fi
+          echo "requested=${requested}" >> "$GITHUB_OUTPUT"
+          echo "origin=${origin}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout Community content at exact commit
+        id: community-checkout
+        env:
+          COMMUNITY_REPO: ${{ env.COMMUNITY_REPO }}
+        run: |
+          set -euo pipefail
+          source_dir="${RUNNER_TEMP}/hagitask-community-source"
+          rm -rf "${source_dir}"
+          # Shallow checkout of the exact commit keeps the build input immutable
+          # and avoids downloading full Community history. The nested hagitask
+          # submodule carries the authoritative schemas, so initialize it too.
+          git clone --filter=blob:none --no-checkout "${COMMUNITY_REPO}" "${source_dir}"
+          git -C "${source_dir}" fetch --depth 1 origin "${{ steps.community.outputs.requested }}"
+          git -C "${source_dir}" checkout "${{ steps.community.outputs.requested }}"
+          git -C "${source_dir}" submodule update --init --recursive --depth 1
+          resolved="$(git -C "${source_dir}" rev-parse HEAD)"
+          echo "source-dir=${source_dir}" >> "$GITHUB_OUTPUT"
+          echo "resolved=${resolved}" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Community build source"
+            echo "- Repository: ${COMMUNITY_REPO}"
+            echo "- Ref origin: ${{ steps.community.outputs.origin }}"
+            echo "- Requested commit: ${{ steps.community.outputs.requested }}"
+            echo "- Resolved commit: ${resolved}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -41,51 +98,16 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Initialize community-packages and nested submodules
-        # Also picks up the pointer advanced by the "Sync Community Content" workflow,
-        # so a sync push to Site main is rebuilt here against the updated Community commit.
-        # `recursive` pulls the nested `hagitask` submodule so the authoritative schemas
-        # are present for the build and verification steps.
-        run: git submodule update --init --recursive
-
       - name: Build and verify site
+        # Community task data and authoritative schemas are read from the
+        # dynamic checkout pointed at by HAGITASK_COMMUNITY_SOURCE_DIR.
+        env:
+          HAGITASK_COMMUNITY_SOURCE_DIR: ${{ steps.community-checkout.outputs.source-dir }}
         run: npm run build
-
-      - name: Download HagiTask schema source
-        id: schema-source
-        # Standalone download into a runner temp directory: HagiTask is deliberately not
-        # registered as a Site submodule. The ref is pinned to the HagiTask commit that
-        # community-packages already records, so the published schemas match the revision
-        # the build and the Community validator were checked against.
-        run: |
-          set -euo pipefail
-          source_dir="${RUNNER_TEMP}/hagitask-schema-source"
-          rm -rf "${source_dir}"
-          pinned_commit="$(git -C community-packages rev-parse 'HEAD:hagitask' 2>/dev/null || true)"
-          if [ -n "${pinned_commit}" ]; then
-            requested_ref="${pinned_commit}"
-            ref_origin="community-packages gitlink"
-          else
-            requested_ref="${HAGITASK_SCHEMA_SOURCE_FALLBACK_REF}"
-            ref_origin="workflow fallback ref"
-          fi
-          git init --quiet "${source_dir}"
-          git -C "${source_dir}" remote add origin "${HAGITASK_SCHEMA_SOURCE_REPO}"
-          git -C "${source_dir}" fetch --quiet --depth 1 origin "${requested_ref}"
-          git -C "${source_dir}" checkout --quiet FETCH_HEAD
-          resolved_commit="$(git -C "${source_dir}" rev-parse HEAD)"
-          echo "source-dir=${source_dir}" >> "$GITHUB_OUTPUT"
-          echo "commit=${resolved_commit}" >> "$GITHUB_OUTPUT"
-          {
-            echo "## Published schema source"
-            echo "- Repository: ${HAGITASK_SCHEMA_SOURCE_REPO}"
-            echo "- Ref origin: ${ref_origin}"
-            echo "- Commit: ${resolved_commit}"
-          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Stage HagiTask schemas into publication payload
         env:
-          HAGITASK_SCHEMA_SOURCE_DIR: ${{ steps.schema-source.outputs.source-dir }}/schemas
+          HAGITASK_COMMUNITY_SOURCE_DIR: ${{ steps.community-checkout.outputs.source-dir }}
         run: npm run stage:schemas
 
       - name: Verify publication payload
