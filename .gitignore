@@ -17,6 +17,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# harness session logs (accidental literal `~` dir at repo root)
+~/
+
 # environment
 .env
 .env.production
