@@ -1,100 +1,92 @@
 ---
 import AnalyticsScripts from '@/components/AnalyticsScripts.astro';
 import Footer from '@/components/Footer.astro';
+import Header from '@/components/Header.astro';
+import '@/styles/site-shell.css';
 
-interface Props {
-  title?: string;
-  description?: string;
-}
-
-const {
-  title = 'HagiTask',
-  description = 'HagiTask 是 HagiCode 生态下的任务与流程管理站点。',
-} = Astro.props;
+interface Props { title?: string; description?: string; }
+const { title = 'HagiTask', description = 'HagiTask 是 HagiCode 生态下的任务与流程管理站点。' } = Astro.props;
 ---
-
 <!doctype html>
-<html lang="en-US" data-locale="en-US">
+<html lang="en-US" data-locale="en-US" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        const validLocale = (value) => value === 'en-US' || value === 'zh-CN';
+        const validTheme = (value) => value === 'dark' || value === 'light';
+        let locale = 'en-US';
+        let theme;
+        try {
+          locale = validLocale(localStorage.getItem('hagitask-locale')) ? localStorage.getItem('hagitask-locale') : locale;
+          theme = localStorage.getItem('hagitask-theme');
+        } catch {}
+        if (!validTheme(theme)) theme = window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        root.dataset.locale = locale;
+        root.lang = locale;
+        root.dataset.theme = theme;
+      })();
+    </script>
     <AnalyticsScripts />
   </head>
   <body>
+    <Header />
     <slot />
-
     <Footer />
-
     <script is:inline>
-      (function () {
-        const saved = localStorage.getItem('hagitask-locale') || 'en-US';
-        document.documentElement.setAttribute('data-locale', saved);
-        document.addEventListener('click', function (e) {
-          const t = e.target.closest('[data-locale-toggle]');
-          if (!t) return;
-          const next = t.getAttribute('data-locale-toggle');
-          document.documentElement.setAttribute('data-locale', next);
-          localStorage.setItem('hagitask-locale', next);
+      (() => {
+        const root = document.documentElement;
+        const setLocale = (locale) => {
+          if (locale !== 'en-US' && locale !== 'zh-CN') return;
+          root.dataset.locale = locale; root.lang = locale;
+          document.querySelectorAll('[data-locale-toggle]').forEach((button) => button.setAttribute('aria-pressed', button.dataset.localeToggle === locale ? 'true' : 'false'));
+          try { localStorage.setItem('hagitask-locale', locale); } catch {}
+        };
+        const setTheme = (theme) => {
+          if (theme !== 'dark' && theme !== 'light') return;
+          root.dataset.theme = theme;
+          const button = document.querySelector('[data-theme-toggle]');
+          button?.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
+          button?.setAttribute('aria-label', theme === 'light' ? 'Use dark theme' : 'Use light theme');
+          try { localStorage.setItem('hagitask-theme', theme); } catch {}
+        };
+        setLocale(root.dataset.locale || 'en-US'); setTheme(root.dataset.theme || 'dark');
+        document.addEventListener('click', (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+          const locale = target.closest('[data-locale-toggle]')?.getAttribute('data-locale-toggle');
+          if (locale) setLocale(locale);
+          if (target.closest('[data-theme-toggle]')) setTheme(root.dataset.theme === 'light' ? 'dark' : 'light');
+          const menu = document.querySelector('[data-mobile-navigation]');
+          const toggle = target.closest('[data-menu-toggle]');
+          const close = target.closest('[data-menu-close]') || target.closest('[data-mobile-navigation] a');
+          if (toggle || close) {
+            const open = Boolean(toggle) && menu?.hasAttribute('hidden');
+            if (open) { menu?.removeAttribute('hidden'); document.body.style.overflow = 'hidden'; }
+            else if (close) { menu?.setAttribute('hidden', ''); document.body.style.overflow = ''; }
+            document.querySelector('[data-menu-toggle]')?.setAttribute('aria-expanded', open ? 'true' : 'false');
+          }
+          const promote = target.closest('[data-promote-close]');
+          if (promote) { promote.closest('[data-promote-card]')?.setAttribute('hidden', ''); try { localStorage.setItem('hagitask-promotion-dismissed', 'true'); } catch {} }
         });
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') { document.querySelector('[data-mobile-navigation]')?.setAttribute('hidden', ''); document.body.style.overflow = ''; document.querySelector('[data-menu-toggle]')?.setAttribute('aria-expanded', 'false'); }
+        });
+        try { if (localStorage.getItem('hagitask-promotion-dismissed') === 'true') document.querySelector('[data-promote-card]')?.setAttribute('hidden', ''); } catch {}
       })();
     </script>
   </body>
 </html>
 
 <style is:global>
-  :root {
-    --color-bg: #0b0d12;
-    --color-fg: #e6e8ee;
-    --color-muted: #9aa3b2;
-    --color-accent: #6d8bff;
-    --color-accent-2: #8b5cf6;
-    --max-width: 1080px;
-    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-      'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  html,
-  body {
-    margin: 0;
-    padding: 0;
-  }
-
-  body {
-    background: var(--color-bg);
-    color: var(--color-fg);
-    font-family: var(--font-sans);
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .locale-zh {
-    display: none;
-  }
-
-  html[data-locale='zh-CN'] .locale-zh {
-    display: inline;
-  }
-
-  html[data-locale='zh-CN'] .locale-en {
-    display: none;
-  }
-
-  .locale-zh.block {
-    display: none;
-  }
-
-  html[data-locale='zh-CN'] .locale-zh.block {
-    display: block;
-  }
-
-  html[data-locale='zh-CN'] .locale-en.block {
-    display: none;
-  }
+  :root { --color-bg: #0b0d12; --color-fg: #e6e8ee; --color-muted: #9aa3b2; --color-accent: #6d8bff; --color-accent-2: #8b5cf6; --color-surface: rgba(255,255,255,.04); --color-border: rgba(255,255,255,.12); --color-accent-soft: rgba(109,139,255,.14); --max-width: 1080px; --header-height: 4.25rem; --radius: 1rem; --shadow: 0 1rem 3rem rgba(0,0,0,.25); --font-sans: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue','PingFang SC','Microsoft YaHei',sans-serif; color-scheme: dark; }
+  html[data-theme='light'] { --color-bg: #f6f7fb; --color-fg: #182033; --color-muted: #5b6475; --color-surface: #fff; --color-border: rgba(24,32,51,.14); --color-accent-soft: rgba(109,139,255,.12); color-scheme: light; }
+  * { box-sizing: border-box; } html, body { margin: 0; padding: 0; } body { background: var(--color-bg); color: var(--color-fg); font-family: var(--font-sans); line-height: 1.6; -webkit-font-smoothing: antialiased; } a, button, input { font: inherit; } :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; } [hidden] { display: none !important; }
+  .locale-zh { display: none; } html[data-locale='zh-CN'] .locale-en { display: none; } html[data-locale='zh-CN'] .locale-zh { display: inline; } .locale-zh.block { display: none; } html[data-locale='zh-CN'] .locale-en.block { display: none; } html[data-locale='zh-CN'] .locale-zh.block { display: block; } .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
 </style>

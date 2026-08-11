@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TaskCard from '@/components/TaskCard.astro';
+import PromoteCard from '@/components/PromoteCard.astro';
 import { getCatalog, SOURCE_ROOT } from '@/lib/community-index';
 
 const { index } = getCatalog();
@@ -8,10 +9,17 @@ const tasks = index.tasks;
 const categories = Array.from(new Set(tasks.map((t) => t.category))).sort();
 const contributionGuideUrl = `${SOURCE_ROOT}#contribute-a-task`;
 const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/schemas';
+const promotion = {
+  title: { 'en-US': 'Build with HagiCode', 'zh-CN': '使用 HagiCode 构建' },
+  description: { 'en-US': 'Explore reusable tasks and contribute your own workflows.', 'zh-CN': '探索可复用任务，也可以贡献你的工作流。' },
+  href: 'https://github.com/HagiCode-org/hagitask',
+  label: { 'en-US': 'Explore the community', 'zh-CN': '探索社区' },
+};
 ---
 
 <BaseLayout title="HagiTask · Community Tasks">
   <main class="page">
+    <PromoteCard promotion={promotion} />
     <section class="hero">
       <p class="hero__eyebrow">HagiCode · Community Tasks</p>
       <h1 class="hero__title">
@@ -33,10 +41,6 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
         <a class="hero__btn hero__btn--ghost" href="https://github.com/HagiCode-org/hagitask-site">
           <span class="locale-en">Site source</span><span class="locale-zh">站点源码</span>
         </a>
-        <div class="locale-toggle" role="group" aria-label="Language">
-          <button type="button" data-locale-toggle="en-US" class="locale-toggle__btn">EN</button>
-          <button type="button" data-locale-toggle="zh-CN" class="locale-toggle__btn">中文</button>
-        </div>
       </div>
     </section>
 
@@ -110,12 +114,12 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
   .page {
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: 2.5rem 1.5rem 4rem;
+    padding: var(--content-gap) 1.5rem 4rem;
   }
 
   .hero {
     text-align: center;
-    padding: 3rem 0 1.5rem;
+    padding: 1rem 0 1.5rem;
     background:
       radial-gradient(60% 60% at 50% 0%, rgba(109, 139, 255, 0.18), transparent 70%),
       radial-gradient(50% 50% at 80% 30%, rgba(139, 92, 246, 0.14), transparent 70%);
@@ -173,25 +177,6 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
     color: var(--color-fg);
   }
 
-  .locale-toggle {
-    display: inline-flex;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 0.75rem;
-    overflow: hidden;
-  }
-
-  .locale-toggle__btn {
-    background: transparent;
-    color: var(--color-muted);
-    border: none;
-    padding: 0.7rem 0.9rem;
-    cursor: pointer;
-    font-weight: 600;
-  }
-
-  .locale-toggle__btn:hover {
-    color: var(--color-fg);
-  }
 
   .toolbar {
     display: flex;
@@ -206,15 +191,14 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
     flex: 1 1 220px;
     padding: 0.7rem 1rem;
     border-radius: 0.75rem;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
     color: var(--color-fg);
     font-size: 0.95rem;
   }
 
   .toolbar__search:focus {
     outline: 2px solid var(--color-accent);
-    outline-offset: 1px;
   }
 
   .toolbar__filters {

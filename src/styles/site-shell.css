@@ -1,0 +1,12 @@
+:root {
+  --content-gap: clamp(2rem, 5vw, 4rem);
+}
+
+.shell-content {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}

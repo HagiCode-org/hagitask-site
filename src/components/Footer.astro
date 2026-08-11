@@ -1,87 +1,32 @@
 ---
 import { hagicodeCompliance } from '@/config/compliance';
-
 const year = new Date().getFullYear();
 const { icp, publicSecurity } = hagicodeCompliance;
+const groups = [
+  { title: ['Product', '产品'], links: [['Catalog', '任务目录', '/'], ['Schemas', 'Schema', '/schemas/']] },
+  { title: ['Resources', '资源'], links: [['Index JSON', 'Index JSON', '/index.json'], ['Schema reference', 'Schema 参考', 'https://github.com/HagiCode-org/hagitask/tree/main/schemas']] },
+  { title: ['Community', '社区'], links: [['Contribute', '贡献指南', 'https://github.com/HagiCode-org/hagitask#contribute-a-task'], ['Site source', '站点源码', 'https://github.com/HagiCode-org/hagitask-site'], ['Community source', '社区源码', 'https://github.com/HagiCode-org/hagitask']] },
+];
 ---
-
 <footer class="site-footer">
   <div class="site-footer__inner">
-    <p class="site-footer__copyright">HagiTask · © {year} Hagicode</p>
-    <ul class="site-footer__filings">
-      <li>
-        <a
-          class="site-footer__link"
-          href={icp.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={icp.ariaLabel}
-        >
-          {icp.label}
-        </a>
-      </li>
-      <li>
-        <a
-          class="site-footer__link"
-          href={publicSecurity.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={publicSecurity.ariaLabel}
-        >
-          {publicSecurity.label}
-        </a>
-      </li>
-    </ul>
+    <div class="site-footer__grid">
+      <div><p class="site-footer__brand">HagiTask</p><p class="site-footer__tagline"><span class="locale-en">Reusable workflows for HagiCode.</span><span class="locale-zh">HagiCode 的可复用工作流。</span></p></div>
+      {groups.map((group) => <nav aria-label={group.title[0]}><h2><span class="locale-en">{group.title[0]}</span><span class="locale-zh">{group.title[1]}</span></h2><ul>{group.links.map(([en, zh, href]) => <li><a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}><span class="locale-en">{en}</span><span class="locale-zh">{zh}</span></a></li>)}</ul></nav>)}
+    </div>
+    <div class="site-footer__bottom"><span>HagiTask · © {year} Hagicode</span><span><a href={icp.href} target="_blank" rel="noopener noreferrer" aria-label={icp.ariaLabel}>{icp.label}</a> · <a href={publicSecurity.href} target="_blank" rel="noopener noreferrer" aria-label={publicSecurity.ariaLabel}>{publicSecurity.label}</a></span></div>
   </div>
 </footer>
-
 <style>
-  .site-footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 2rem 1.5rem;
-  }
-
-  .site-footer__inner {
-    max-width: var(--max-width);
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    text-align: center;
-    color: var(--color-muted);
-    font-size: 0.875rem;
-  }
-
-  .site-footer__copyright {
-    margin: 0;
-  }
-
-  .site-footer__filings {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.5rem 1.5rem;
-  }
-
-  .site-footer__link {
-    color: var(--color-muted);
-    text-decoration: none;
-    overflow-wrap: anywhere;
-  }
-
-  .site-footer__link:hover,
-  .site-footer__link:focus-visible {
-    color: var(--color-fg);
-    text-decoration: underline;
-  }
-
-  @media (max-width: 640px) {
-    .site-footer__filings {
-      flex-direction: column;
-    }
-  }
+  .site-footer { border-top: 1px solid var(--color-border); padding: 3rem 1.5rem 2rem; color: var(--color-muted); }
+  .site-footer__inner { max-width: var(--max-width); margin: 0 auto; }
+  .site-footer__grid { display: grid; grid-template-columns: 1.5fr repeat(3, 1fr); gap: 2rem; }
+  .site-footer__brand { margin: 0; color: var(--color-fg); font-size: 1.2rem; font-weight: 800; }
+  .site-footer__tagline { margin: .35rem 0 0; font-size: .9rem; }
+  .site-footer h2 { margin: 0 0 .7rem; color: var(--color-fg); font-size: .85rem; }
+  .site-footer ul { margin: 0; padding: 0; list-style: none; display: grid; gap: .4rem; }
+  .site-footer a { color: var(--color-muted); overflow-wrap: anywhere; text-decoration: none; }
+  .site-footer a:hover { color: var(--color-fg); text-decoration: underline; }
+  .site-footer__bottom { display: flex; justify-content: space-between; gap: 1rem; margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--color-border); font-size: .8rem; }
+  @media (max-width: 700px) { .site-footer__grid { grid-template-columns: repeat(2, 1fr); } .site-footer__grid > div { grid-column: 1 / -1; } .site-footer__bottom { flex-direction: column; } }
 </style>

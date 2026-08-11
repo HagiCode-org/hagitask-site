@@ -1,0 +1,35 @@
+---
+interface Promotion {
+  title: { 'en-US': string; 'zh-CN': string };
+  description: { 'en-US': string; 'zh-CN': string };
+  href: string;
+  label: { 'en-US': string; 'zh-CN': string };
+}
+
+interface Props {
+  promotion?: Promotion;
+}
+
+const { promotion } = Astro.props;
+const valid = promotion && /^https?:\/\//.test(promotion.href) && promotion.title['en-US'] && promotion.title['zh-CN'] && promotion.description['en-US'] && promotion.description['zh-CN'];
+---
+
+{valid && (
+  <aside class="promote-card" data-promote-card>
+    <button class="promote-card__close" type="button" data-promote-close aria-label="Dismiss promotion">×</button>
+    <p class="promote-card__eyebrow">HagiCode</p>
+    <h2><span class="locale-en">{promotion.title['en-US']}</span><span class="locale-zh">{promotion.title['zh-CN']}</span></h2>
+    <p class="promote-card__description"><span class="locale-en">{promotion.description['en-US']}</span><span class="locale-zh">{promotion.description['zh-CN']}</span></p>
+    <a class="promote-card__cta" href={promotion.href} target="_blank" rel="noopener noreferrer"><span class="locale-en">{promotion.label['en-US']}</span><span class="locale-zh">{promotion.label['zh-CN']}</span> →</a>
+  </aside>
+)}
+
+<style>
+  .promote-card { position: relative; margin: 0 0 1.5rem; padding: 1.25rem 3.5rem 1.25rem 1.5rem; border: 1px solid color-mix(in srgb, var(--color-accent) 35%, var(--color-border)); border-radius: var(--radius); background: linear-gradient(120deg, var(--color-accent-soft), var(--color-surface)); }
+  .promote-card h2, .promote-card p { margin: 0; }
+  .promote-card h2 { font-size: 1.1rem; }
+  .promote-card__eyebrow { margin-bottom: .25rem !important; color: var(--color-accent); font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; }
+  .promote-card__description { margin: .35rem 0 .75rem !important; color: var(--color-muted); }
+  .promote-card__cta { color: var(--color-accent); font-weight: 700; text-decoration: none; }
+  .promote-card__close { position: absolute; top: .65rem; right: .75rem; border: 0; background: transparent; color: var(--color-muted); cursor: pointer; font-size: 1.4rem; }
+</style>
