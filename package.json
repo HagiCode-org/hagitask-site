@@ -12,7 +12,9 @@
     "astro": "astro",
     "sync": "astro sync",
     "typecheck": "astro check",
+    "stage:schemas": "node scripts/schema-payload.mjs",
     "verify": "node scripts/verify-publication.mjs",
+    "test": "node --test \"test/**/*.test.mjs\"",
     "clean": "rm -rf .astro dist public/packages"
   },
   "dependencies": {
