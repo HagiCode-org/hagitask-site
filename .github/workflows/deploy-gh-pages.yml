@@ -17,6 +17,8 @@ env:
   NODE_VERSION: "22.12.0"
   NODE_ENV: production
   HAGITASK_GH_PAGES_PAYLOAD_DIR: .deploy/gh-pages
+  HAGITASK_SCHEMA_SOURCE_REPO: https://github.com/HagiCode-org/hagitask.git
+  HAGITASK_SCHEMA_SOURCE_FALLBACK_REF: main
 
 jobs:
   build:
@@ -48,6 +50,43 @@ jobs:
 
       - name: Build and verify site
         run: npm run build
+
+      - name: Download HagiTask schema source
+        id: schema-source
+        # Standalone download into a runner temp directory: HagiTask is deliberately not
+        # registered as a Site submodule. The ref is pinned to the HagiTask commit that
+        # community-packages already records, so the published schemas match the revision
+        # the build and the Community validator were checked against.
+        run: |
+          set -euo pipefail
+          source_dir="${RUNNER_TEMP}/hagitask-schema-source"
+          rm -rf "${source_dir}"
+          pinned_commit="$(git -C community-packages rev-parse 'HEAD:hagitask' 2>/dev/null || true)"
+          if [ -n "${pinned_commit}" ]; then
+            requested_ref="${pinned_commit}"
+            ref_origin="community-packages gitlink"
+          else
+            requested_ref="${HAGITASK_SCHEMA_SOURCE_FALLBACK_REF}"
+            ref_origin="workflow fallback ref"
+          fi
+          git init --quiet "${source_dir}"
+          git -C "${source_dir}" remote add origin "${HAGITASK_SCHEMA_SOURCE_REPO}"
+          git -C "${source_dir}" fetch --quiet --depth 1 origin "${requested_ref}"
+          git -C "${source_dir}" checkout --quiet FETCH_HEAD
+          resolved_commit="$(git -C "${source_dir}" rev-parse HEAD)"
+          echo "source-dir=${source_dir}" >> "$GITHUB_OUTPUT"
+          echo "commit=${resolved_commit}" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Published schema source"
+            echo "- Repository: ${HAGITASK_SCHEMA_SOURCE_REPO}"
+            echo "- Ref origin: ${ref_origin}"
+            echo "- Commit: ${resolved_commit}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Stage HagiTask schemas into publication payload
+        env:
+          HAGITASK_SCHEMA_SOURCE_DIR: ${{ steps.schema-source.outputs.source-dir }}/schemas
+        run: npm run stage:schemas
 
       - name: Verify publication payload
         run: npm run verify
