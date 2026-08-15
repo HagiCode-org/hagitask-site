@@ -14,9 +14,9 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
 <BaseLayout title="HagiTask · Community Tasks">
   <main class="page">
     <PromoteCard />
-    <section class="hero">
+    <section class="hero" aria-labelledby="page-title">
       <p class="hero__eyebrow">HagiCode · Community Tasks</p>
-      <h1 class="hero__title">
+      <h1 class="hero__title" id="page-title">
         <span class="locale-en">HagiTask Community</span>
         <span class="locale-zh">HagiTask 社区任务</span>
       </h1>
@@ -24,7 +24,7 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
         <span class="locale-en">Discover reusable workflows for HagiCode.</span>
         <span class="locale-zh">发现可复用的 HagiCode 工作流。</span>
       </p>
-      <div class="hero__actions">
+      <div class="hero__actions" aria-label="Resource links">
         <a class="hero__btn hero__btn--primary" href="/index.json">index.json</a>
         <a class="hero__btn hero__btn--ghost" href={contributionGuideUrl} target="_blank" rel="noreferrer">
           <span class="locale-en">Contribute a task</span><span class="locale-zh">贡献 Task</span>
@@ -38,15 +38,22 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
       </div>
     </section>
 
-    <section class="toolbar">
-      <input
-        type="search"
-        id="task-search"
-        class="toolbar__search"
-        placeholder="Search tasks..."
-        aria-label="Search tasks"
-      />
-      <div class="toolbar__filters" id="category-filters">
+    <section class="toolbar" aria-labelledby="catalog-heading">
+      <div class="toolbar__heading">
+        <p class="section-label" id="catalog-heading"><span class="locale-en">Task catalog</span><span class="locale-zh">任务目录</span></p>
+        <span class="toolbar__count" id="task-count">{tasks.length} tasks</span>
+      </div>
+      <label class="toolbar__search-wrap">
+        <span class="sr-only">Search tasks / 搜索任务</span>
+        <input
+          type="search"
+          id="task-search"
+          class="toolbar__search"
+          placeholder="Search tasks..."
+          aria-label="Search tasks / 搜索任务"
+        />
+      </label>
+      <div class="toolbar__filters" id="category-filters" aria-label="Filter by category">
         <button type="button" class="chip chip--active" data-category="all">
           <span class="locale-en">All</span><span class="locale-zh">全部</span>
         </button>
@@ -75,6 +82,7 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
   const filters = document.getElementById('category-filters');
   const grid = document.getElementById('task-grid');
   const empty = document.getElementById('grid-empty');
+  const count = document.getElementById('task-count');
 
   function apply() {
     if (!search || !grid) return;
@@ -92,6 +100,7 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
       if (show) visible++;
     });
     if (empty) empty.hidden = visible !== 0;
+    if (count) count.textContent = `${visible} ${visible === 1 ? 'task' : 'tasks'}`;
   }
 
   search?.addEventListener('input', apply);
@@ -108,16 +117,16 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
   .page {
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: var(--content-gap) 1.5rem 4rem;
+    padding: 3.5rem 1.25rem 5rem;
   }
 
   .hero {
     text-align: center;
-    padding: 1rem 0 1.5rem;
+    padding: 4rem 1rem 5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
     background:
-      radial-gradient(60% 60% at 50% 0%, rgba(109, 139, 255, 0.18), transparent 70%),
-      radial-gradient(50% 50% at 80% 30%, rgba(139, 92, 246, 0.14), transparent 70%);
-    border-radius: 1.5rem;
+      radial-gradient(60% 60% at 50% 0%, rgba(250, 255, 105, 0.14), transparent 70%);
   }
 
   .hero__eyebrow {
@@ -131,11 +140,8 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
   .hero__title {
     margin: 0;
     font-size: clamp(2rem, 5vw, 3.25rem);
-    font-weight: 800;
-    background: linear-gradient(120deg, var(--color-fg), var(--color-accent));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    font-weight: 900;
+    letter-spacing: -0.06em;
   }
 
   .hero__subtitle {
@@ -156,35 +162,42 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
     display: inline-flex;
     align-items: center;
     padding: 0.7rem 1.25rem;
-    border-radius: 0.75rem;
+    border-radius: 4px;
     font-weight: 600;
     text-decoration: none;
   }
 
   .hero__btn--primary {
-    background: linear-gradient(120deg, var(--color-accent), var(--color-accent-2));
-    color: #fff;
+    background: var(--color-accent);
+    color: #151515;
   }
 
   .hero__btn--ghost {
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    border: 1px solid var(--color-border);
     color: var(--color-fg);
   }
 
 
   .toolbar {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(12rem, .6fr) minmax(24rem, 2fr);
     flex-wrap: wrap;
     gap: 1rem;
     align-items: center;
-    justify-content: space-between;
-    margin: 2.5rem 0 1.5rem;
+    margin: 3rem 0 1.5rem;
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
   }
 
+  .toolbar__heading { display: flex; align-items: center; gap: .75rem; grid-column: 1 / -1; }
+  .section-label { margin: 0; color: var(--color-accent); font-size: .8rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+  .toolbar__count { color: var(--color-muted); font-size: .8rem; }
+  .toolbar__search-wrap { display: block; }
   .toolbar__search {
     flex: 1 1 220px;
     padding: 0.7rem 1rem;
-    border-radius: 0.75rem;
+    border-radius: 4px;
     border: 1px solid var(--color-border);
     background: var(--color-surface);
     color: var(--color-fg);
@@ -193,6 +206,7 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
 
   .toolbar__search:focus {
     outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
   }
 
   .toolbar__filters {
@@ -203,8 +217,8 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
 
   .chip {
     padding: 0.45rem 0.9rem;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    border: 1px solid var(--color-border);
     background: transparent;
     color: var(--color-muted);
     cursor: pointer;
@@ -212,14 +226,14 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
   }
 
   .chip--active {
-    background: rgba(109, 139, 255, 0.16);
-    color: var(--color-accent);
-    border-color: rgba(109, 139, 255, 0.4);
+    background: var(--color-accent);
+    color: #151515;
+    border-color: var(--color-accent);
   }
 
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 1.25rem;
   }
 
@@ -228,5 +242,24 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
     text-align: center;
     color: var(--color-muted);
     padding: 2rem;
+  }
+
+  @media (max-width: 700px) {
+    .page { padding-inline: .75rem; }
+    .hero { padding: 3rem 1rem; }
+    .toolbar { grid-template-columns: 1fr; }
+    .toolbar__filters { grid-column: 1; }
+  }
+
+  @media (max-width: 1180px) {
+    .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 620px) {
+    .grid { grid-template-columns: 1fr; }
   }
 </style>
