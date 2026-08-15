@@ -72,12 +72,10 @@ jobs:
           source_dir="${RUNNER_TEMP}/hagitask-community-source"
           rm -rf "${source_dir}"
           # Shallow checkout of the exact commit keeps the build input immutable
-          # and avoids downloading full Community history. The nested hagitask
-          # submodule carries the authoritative schemas, so initialize it too.
+          # and avoids downloading full Community history.
           git clone --filter=blob:none --no-checkout "${COMMUNITY_REPO}" "${source_dir}"
           git -C "${source_dir}" fetch --depth 1 origin "${{ steps.community.outputs.requested }}"
           git -C "${source_dir}" checkout "${{ steps.community.outputs.requested }}"
-          git -C "${source_dir}" submodule update --init --recursive --depth 1
           resolved="$(git -C "${source_dir}" rev-parse HEAD)"
           echo "source-dir=${source_dir}" >> "$GITHUB_OUTPUT"
           echo "resolved=${resolved}" >> "$GITHUB_OUTPUT"

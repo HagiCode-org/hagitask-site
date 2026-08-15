@@ -2,9 +2,9 @@
  * Community catalog loader, normalizer, validator, and package builder.
  *
  * Reads the Community repository (repos/hagitask-community-packages), normalizes
- * each task from `<community>/data/<taskId>/` into the v1 model, validates the
- * emitted documents against the authoritative v1 schemas loaded from
- * `<community>/hagitask/schemas/`, computes deterministic package archives +
+ * each task from `<community>/data/<taskId>/` into the v1 model, validates source
+ * packages with the published HagiTask CLI, validates emitted documents against
+ * the authoritative v1 schemas shipped in that CLI, computes deterministic package archives +
  * SHA-256 digests, and minifies every JSON document before publication.
  *
  * The Community source is resolved from `HAGITASK_COMMUNITY_SOURCE_DIR` (set by the
@@ -14,6 +14,7 @@
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
+import { validatePackages } from '@hagicode/hagitask';
 import { assertValid } from './jsonSchema';
 import { createZip, type ZipEntry } from './zip';
 
@@ -21,13 +22,13 @@ import { createZip, type ZipEntry } from './zip';
 // script run with the site repository as the current working directory. The build
 // reads the Community repository from `HAGITASK_COMMUNITY_SOURCE_DIR` (a runner-local
 // checkout of the exact commit to publish) and falls back to a local `community-packages/`
-// checkout for development. Task packages live under `<community>/data/` and the
-// authoritative publication schemas are loaded from `<community>/hagitask/schemas/`.
+// checkout for development. Task packages live under `<community>/data/`; publication schemas
+// come from the pinned @hagicode/hagitask package.
 // (import.meta.url is not used because the build bundles this module into dist/.prerender/.)
 const ROOT = process.cwd();
 const COMMUNITY_ROOT = process.env.HAGITASK_COMMUNITY_SOURCE_DIR || join(ROOT, 'community-packages');
 const DATA_DIR = join(COMMUNITY_ROOT, 'data');
-const SCHEMA_DIR = join(COMMUNITY_ROOT, 'hagitask', 'schemas');
+const SCHEMA_DIR = join(ROOT, 'node_modules', '@hagicode', 'hagitask', 'schemas');
 const PUBLIC_PACKAGES_DIR = join(ROOT, 'public', 'packages');
 
 function loadSchema(fileName: string): any {
@@ -35,8 +36,7 @@ function loadSchema(fileName: string): any {
   if (!existsSync(full)) {
     throw new Error(
       `Community publication schema not found at ${full}. ` +
-        `Point HAGITASK_COMMUNITY_SOURCE_DIR at a Community checkout, or populate the local ` +
-        `community-packages/ checkout, before building.`,
+        `Install @hagicode/hagitask before building.`,
     );
   }
   return JSON.parse(readFileSync(full, 'utf8'));
@@ -390,6 +390,14 @@ export function getCatalog(): Catalog {
   const ids = listTaskIds();
   if (ids.length === 0) {
     throw new Error(`No community tasks found under ${DATA_DIR}.`);
+  }
+
+  const sourceValidation = validatePackages(COMMUNITY_ROOT);
+  if (!sourceValidation.valid) {
+    const diagnostics = sourceValidation.errors
+      .map((error) => `${error.packageId}: ${error.file}: ${error.field}: ${error.message}`)
+      .join('\n');
+    throw new Error(`Community package validation failed:\n${diagnostics}`);
   }
 
   const seen = new Set<string>();

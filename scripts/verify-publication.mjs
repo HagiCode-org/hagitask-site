@@ -112,12 +112,12 @@ for (const alias of ALIASES) {
 }
 
 // The site must not vendor its own schema copy; it loads the publication schemas
-// from the Community checkout (HAGITASK_COMMUNITY_SOURCE_DIR/hagitask/schemas),
-// staging them only into dist/schemas/ at build time.
+// from the pinned @hagicode/hagitask package, staging them only into dist/schemas/
+// at build time.
 if (existsSync(join(REPO_ROOT, 'src', 'lib', 'schemas'))) {
   fail('Site still vendors publication schemas at src/lib/schemas; load them from the Community checkout.');
 } else {
-  ok('Site loads publication schemas from the Community checkout (no duplicated copy in src/)');
+  ok('Site loads publication schemas from the pinned HagiTask CLI (no duplicated copy in src/)');
 }
 
 // The authoritative HagiTask schemas must ship with the payload so that the

@@ -95,7 +95,7 @@ test('verification reports an unstaged payload', () => {
   }
 });
 
-test('the nested HagiTask checkout provides every expected schema', { skip: !existsSync(resolveSchemaSourceDir({})) }, () => {
+test('the published HagiTask CLI provides every expected schema', { skip: !existsSync(resolveSchemaSourceDir({})) }, () => {
   const sourceDir = resolveSchemaSourceDir({});
   const ws = makeWorkspace();
   try {

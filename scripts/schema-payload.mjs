@@ -1,13 +1,8 @@
 /**
  * HagiTask schema publication payload.
  *
- * The authoritative schemas live in the Community repository at
- * `<community>/hagitask/schemas/`. The deploy workflow checks out an exact Community
- * commit into a runner temporary directory and points `HAGITASK_COMMUNITY_SOURCE_DIR`
- * at that checkout root; this script resolves the schemas from
- * `HAGITASK_COMMUNITY_SOURCE_DIR/hagitask/schemas`. An explicit `HAGITASK_SCHEMA_SOURCE_DIR`
- * overrides the resolution, and locally the source defaults to the nested
- * `community-packages/hagitask/schemas/` checkout. The site never vendors its own schema copy.
+ * The authoritative schemas are shipped in the pinned `@hagicode/hagitask` package.
+ * An explicit `HAGITASK_SCHEMA_SOURCE_DIR` can override the source for isolated tests.
  *
  * Staging copies the source tree verbatim to `dist/schemas/`, so every file is
  * published at `https://tasks.hagicode.com/schemas/<source-relative-path>` — the
@@ -19,7 +14,7 @@ import { join, resolve } from 'node:path';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 const DEFAULT_DIST_DIR = join(REPO_ROOT, 'dist');
-const DEFAULT_SOURCE_DIR = join(REPO_ROOT, 'community-packages', 'hagitask', 'schemas');
+const DEFAULT_SOURCE_DIR = join(REPO_ROOT, 'node_modules', '@hagicode', 'hagitask', 'schemas');
 
 /** Every schema that must be reachable under `/schemas/` after publication. */
 export const EXPECTED_SCHEMA_PATHS = [
@@ -36,9 +31,6 @@ export const EXPECTED_SCHEMA_PATHS = [
 
 export function resolveSchemaSourceDir(env = process.env) {
   if (env.HAGITASK_SCHEMA_SOURCE_DIR) return resolve(env.HAGITASK_SCHEMA_SOURCE_DIR);
-  if (env.HAGITASK_COMMUNITY_SOURCE_DIR) {
-    return resolve(env.HAGITASK_COMMUNITY_SOURCE_DIR, 'hagitask', 'schemas');
-  }
   return resolve(DEFAULT_SOURCE_DIR);
 }
 
@@ -51,9 +43,7 @@ export function stageSchemas(sourceDir, distDir) {
   if (!existsSync(sourceDir)) {
     throw new Error(
       `HagiTask schema source not found at ${sourceDir}. ` +
-        `Set HAGITASK_COMMUNITY_SOURCE_DIR to a Community checkout root (schemas resolve from ` +
-        `<root>/hagitask/schemas), set HAGITASK_SCHEMA_SOURCE_DIR to a schemas/ directory, ` +
-        `or populate the local community-packages/hagitask/schemas/ checkout.`,
+        `Install @hagicode/hagitask or set HAGITASK_SCHEMA_SOURCE_DIR to a schemas/ directory.`,
     );
   }
   if (!existsSync(distDir)) {
