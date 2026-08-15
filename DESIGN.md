@@ -2,16 +2,16 @@
 name: HagiTask Community
 description: A focused dark catalog for discovering reusable HagiCode workflows.
 colors:
-  bg: "#0B0D12"
-  fg: "#E6E8EE"
-  muted: "#9AA3B2"
-  accent: "#6D8BFF"
-  accent-secondary: "#8B5CF6"
-  card: "#FFFFFF05"
-  border: "#FFFFFF14"
+  bg: "#000000"
+  fg: "#FFFFFF"
+  muted: "#A0A0A0"
+  accent: "#FAFF69"
+  accent-secondary: "#166534"
+  card: "#141414"
+  border: "#414141"
 typography:
   display:
-    fontFamily: "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, PingFang SC, Microsoft YaHei, sans-serif"
+    fontFamily: "Inter, -apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif"
     fontSize: "clamp(2rem, 5vw, 3.25rem)"
     fontWeight: 800
     lineHeight: 1.2
@@ -27,9 +27,9 @@ typography:
     lineHeight: 1.2
     letterSpacing: "0.12em"
 rounded:
-  control: "0.75rem"
-  card: "1rem"
-  pill: "999px"
+  control: "4px"
+  card: "8px"
+  pill: "4px"
 spacing:
   compact: "0.5rem"
   control: "0.7rem"
@@ -68,7 +68,7 @@ HagiTask Community is a dark, high-signal catalog for reusable HagiCode workflow
 The interface uses a nearly black foundation, cool white text, and a restrained blue-to-violet emphasis. The catalog should feel technical and dependable, not like a neon AI landing page or an overloaded analytics console. English and Simplified Chinese content occupy the same structural slots; locale switching must not alter layout hierarchy.
 
 **Key Characteristics:**
-- A centered single-column catalog constrained to `1080px`.
+- A wide catalog constrained to `1440px`, using four task columns on large desktop screens.
 - Cool blue and violet gradients reserved for the hero and primary actions.
 - Low-contrast translucent cards with border-led separation.
 - Compact metadata and tag treatment for fast scanning.
@@ -145,7 +145,7 @@ The system is flat by default. Separation comes from translucent fills, thin whi
 
 ### Navigation
 - **Primary Scan Path:** Hero actions, then discovery toolbar, then responsive task grid.
-- **Responsive Grid:** Use `repeat(auto-fill, minmax(280px, 1fr))` so cards remain readable without an additional mobile-specific layout.
+- **Responsive Grid:** Use four columns above `1180px`, three columns above `900px`, two columns above `620px`, and one column on narrow screens.
 
 ## Do's and Don'ts
 
