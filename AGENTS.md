@@ -29,14 +29,14 @@ node scripts/assert-sync-config.mjs   # 校验同步工作流配置
 ## 社区内容来源
 
 - 站点内容来自 `hagitask-community-packages`，**不再**以 Git submodule 挂载。最近一次成功发布的 Community 提交记录在根目录 `community-packages.commit`（单行 40 位小写 hex SHA）。
-- 构建从 `HAGITASK_COMMUNITY_SOURCE_DIR` 指向的 Community checkout 根目录读取 `data/` 与 `hagitask/schemas/`；未设置时回退到本地 `community-packages/` checkout。`src/lib/community-index.ts` 读取该来源，对生成的 `/index.json` 与 `/tasks/<taskId>.json` 做 Schema 校验后发布。
+- 构建从 `HAGITASK_COMMUNITY_SOURCE_DIR` 指向的 Community checkout 根目录读取 `data/`；未设置时回退到本地 `community-packages/` checkout。`@hagicode/hagitask@0.1.2` 负责包源校验与发布 schema，`src/lib/community-index.ts` 继续对生成的 `/index.json` 与 `/tasks/<taskId>.json` 做 Schema 校验后发布。
 - `Sync Community Content` 工作流（`.github/workflows/sync-community-content.yml`）定时/手动比较 Community `main` 与 `community-packages.commit`，仅在变化时触发 `HagiTask Site Deploy gh-pages`（传入精确 commit），并在其成功后回写状态文件。
 - 包的提交前校验在 Community 仓库内完成（`npm run validate`），本站点是发布前第二道防线。
 
 ## Schema 发布
 
 - 站点把 HagiTask 的 9 份权威 Schema 发布到 `/schemas/**`，公开根地址为 `https://tasks.hagicode.com/schemas/`，路径与源码目录一一对应。
-- 发布来源由 deploy 工作流在构建阶段 `shallow clone` 精确 Community commit 到 runner 临时目录并暴露 `HAGITASK_COMMUNITY_SOURCE_DIR`；Schema 从该 checkout 的 `hagitask/schemas/` 经 `npm run stage:schemas` 复制到 `dist/schemas/`。HagiTask/Community 不是本仓库的子模块。
+- 发布来源由 deploy 工作流在构建阶段 `shallow clone` 精确 Community commit 到 runner 临时目录并暴露 `HAGITASK_COMMUNITY_SOURCE_DIR`；Schema 从已安装的 `@hagicode/hagitask@0.1.2` 经 `npm run stage:schemas` 复制到 `dist/schemas/`。HagiTask/Community 不是本仓库的子模块。
 - 不要把 Schema 复制进站点源码；`scripts/schema-payload.mjs` 的 `EXPECTED_SCHEMA_PATHS` 是发布契约，新增或删除权威 Schema 时同步更新它和 `test/schema-payload.test.mjs`。
 
 ## 注意事项
