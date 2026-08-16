@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-09T23:30:00Z",
+  "generatedAt": "2026-08-16T03:42:00Z",
   "title": "Design System: HagiTask Community",
   "extensions": {
     "colorMeta": {
@@ -24,23 +24,23 @@
       },
       "accent": {
         "role": "primary",
-        "displayName": "Workflow Blue",
-        "canonical": "#6D8BFF",
-        "description": "Interactive links, active states, focus, and metadata keys.",
+        "displayName": "Signal Yellow",
+        "canonical": "#FAFF69",
+        "description": "Dark-theme primary action surface, focus accent, and active-state emphasis.",
         "tonalRamp": [
-          "#17204D",
-          "#2E4188",
-          "#4E66C2",
-          "#6D8BFF",
-          "#9BACFF",
-          "#C8D1FF"
+          "#4A4C00",
+          "#777A00",
+          "#A9AD00",
+          "#FAFF69",
+          "#FCFF9A",
+          "#FDFFC9"
         ]
       },
       "accent-secondary": {
         "role": "accent",
-        "displayName": "Workflow Violet",
-        "canonical": "#8B5CF6",
-        "description": "Secondary gradient stop and ambient hero treatment."
+        "displayName": "Operations Green",
+        "canonical": "#166534",
+        "description": "Light-theme interactive accent, dark-theme secondary gradient stop, and metadata emphasis."
       }
     },
     "typographyMeta": {
@@ -77,9 +77,9 @@
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Primary call-to-action with the blue-to-violet gradient; hero actions and direct data/workflow entry points.",
+      "description": "Primary call-to-action with a theme-aware yellow/green treatment; light mode uses a pale green surface with dark text.",
       "html": "<a class=\"ds-btn-primary\" href=\"#\">查看后端仓库</a>",
-      "css": ".ds-btn-primary { display: inline-flex; align-items: center; padding: 0.7rem 1.25rem; border: none; border-radius: 0.75rem; font: 600 1rem/1 var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif); text-decoration: none; color: #fff; background: linear-gradient(120deg, var(--color-accent, #6d8bff), var(--color-accent-2, #8b5cf6)); transition: transform 0.15s ease, opacity 0.15s ease; } .ds-btn-primary:hover { transform: translateY(-2px); } .ds-btn-primary:focus-visible { outline: 2px solid var(--color-accent, #6d8bff); outline-offset: 1px; }"
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; padding: 0.7rem 1.25rem; border: none; border-radius: 0.75rem; font: 600 1rem/1 var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif); text-decoration: none; color: var(--color-on-accent, #151515); background: var(--color-accent-surface, #faff69); transition: transform 0.15s ease, opacity 0.15s ease; } .ds-btn-primary:hover { transform: translateY(-2px); } .ds-btn-primary:focus-visible { outline: 2px solid var(--color-accent, #166534); outline-offset: 1px; }"
     },
     {
       "name": "Ghost Button",
@@ -87,29 +87,29 @@
       "refersTo": "button-ghost",
       "description": "Secondary, bordered button for source navigation; transparent at rest, foreground text on hover.",
       "html": "<a class=\"ds-btn-ghost\" href=\"#\">站点源码</a>",
-      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; padding: 0.7rem 1.25rem; border: 1px solid rgba(255,255,255,0.18); border-radius: 0.75rem; font: 600 1rem/1 var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif); text-decoration: none; color: var(--color-fg, #e6e8ee); transition: transform 0.15s ease, border-color 0.15s ease; } .ds-btn-ghost:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.32); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--color-accent, #6d8bff); outline-offset: 1px; }"
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; padding: 0.7rem 1.25rem; border: 1px solid rgba(255,255,255,0.18); border-radius: 0.75rem; font: 600 1rem/1 var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif); text-decoration: none; color: var(--color-fg, #e6e8ee); transition: transform 0.15s ease, border-color 0.15s ease; } .ds-btn-ghost:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.32); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--color-accent, #166534); outline-offset: 1px; }"
     },
     {
       "name": "Category Chip",
       "kind": "chip",
       "refersTo": "filter-chip-active",
-      "description": "Pill filter control; muted at rest, blue translucent fill with stronger blue border when active. State must not rely on color alone.",
+      "description": "Pill filter control; muted at rest, theme-aware pale accent surface with dark text when active. State must not rely on color alone.",
       "html": "<button type=\"button\" class=\"ds-chip ds-chip--active\">All</button><button type=\"button\" class=\"ds-chip\">Agent</button>",
-      "css": ".ds-chip { padding: 0.45rem 0.9rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: var(--color-muted, #9aa3b2); cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease; } .ds-chip:hover { color: var(--color-fg, #e6e8ee); } .ds-chip:focus-visible { outline: 2px solid var(--color-accent, #6d8bff); outline-offset: 1px; } .ds-chip--active { background: rgba(109,139,255,0.16); color: var(--color-accent, #6d8bff); border-color: rgba(109,139,255,0.4); }"
+      "css": ".ds-chip { padding: 0.45rem 0.9rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: var(--color-muted, #9aa3b2); cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease; } .ds-chip:hover { color: var(--color-fg, #e6e8ee); } .ds-chip:focus-visible { outline: 2px solid var(--color-accent, #166534); outline-offset: 1px; } .ds-chip--active { background: var(--color-accent-surface, #bbf7d0); color: var(--color-on-accent, #151515); border-color: var(--color-accent-surface, #bbf7d0); }"
     },
     {
       "name": "Tag Pill",
       "kind": "chip",
       "refersTo": "tag",
-      "description": "Compact metadata tag inside task cards; small blue translucent pill supporting fast scanning.",
+      "description": "Compact metadata tag inside task cards; small accent pill supporting fast scanning.",
       "html": "<span class=\"ds-tag\">#workflow</span>",
-      "css": ".ds-tag { font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 999px; background: rgba(109,139,255,0.12); color: var(--color-accent, #6d8bff); }"
+      "css": ".ds-tag { font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 999px; background: var(--color-accent-soft, rgba(22,101,52,.1)); color: var(--color-accent, #166534); }"
     },
     {
       "name": "Task Card",
       "kind": "card",
       "refersTo": "task-card",
-      "description": "Frosted translucent result card with border-led separation; border shifts toward blue and the card lifts 2px on hover.",
+      "description": "Frosted translucent result card with border-led separation; border shifts toward the accent and the card lifts 2px on hover.",
       "html": "<article class=\"ds-task-card\"><h3 class=\"ds-task-card__title\">HagiTask Community</h3><span class=\"ds-task-card__version\">v1.0</span></article>",
       "css": ".ds-task-card { display: flex; flex-direction: column; gap: 1rem; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.08); border-radius: 1rem; background: rgba(255,255,255,0.02); transition: border-color 0.15s ease, transform 0.15s ease; } .ds-task-card:hover { border-color: rgba(109,139,255,0.5); transform: translateY(-2px); } .ds-task-card:focus-within { border-color: rgba(109,139,255,0.5); } .ds-task-card__title { margin: 0; font-size: 1.15rem; color: var(--color-fg, #e6e8ee); } .ds-task-card__version { align-self: flex-start; font-size: 0.8rem; color: var(--color-muted, #9aa3b2); font-variant-numeric: tabular-nums; }"
     },
@@ -117,9 +117,9 @@
       "name": "Search Field",
       "kind": "input",
       "refersTo": "toolbar__search",
-      "description": "Flexible frosted search input with a Soft Divider border and the visible 2px blue focus outline.",
+      "description": "Flexible frosted search input with a Soft Divider border and the visible 2px theme accent focus outline.",
       "html": "<input type=\"search\" class=\"ds-search\" placeholder=\"Search tasks...\" aria-label=\"Search tasks\" />",
-      "css": ".ds-search { flex: 1 1 220px; padding: 0.7rem 1rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.03); color: var(--color-fg, #e6e8ee); font-size: 0.95rem; } .ds-search::placeholder { color: var(--color-muted, #9aa3b2); } .ds-search:focus { outline: 2px solid var(--color-accent, #6d8bff); outline-offset: 1px; }"
+      "css": ".ds-search { flex: 1 1 220px; padding: 0.7rem 1rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.03); color: var(--color-fg, #e6e8ee); font-size: 0.95rem; } .ds-search::placeholder { color: var(--color-muted, #9aa3b2); } .ds-search:focus { outline: 2px solid var(--color-accent, #166534); outline-offset: 1px; }"
     },
     {
       "name": "Locale Toggle",
@@ -132,10 +132,10 @@
   ],
   "narrative": {
     "northStar": "The Quiet Operations Console",
-    "overview": "A focused dark catalog for reusable HagiCode workflows. A nearly black foundation and subdued card surfaces keep task metadata easy to scan, while Workflow Blue identifies the small set of active and actionable states.",
+    "overview": "A focused bilingual catalog for reusable HagiCode workflows. A nearly black dark theme and quiet light theme keep task metadata easy to scan, while yellow and green identify the small set of active and actionable states.",
     "keyCharacteristics": [
       "Centered single-column catalog constrained to 1080px.",
-      "Cool blue and violet reserved for hero and primary actions.",
+      "Yellow and green reserved for active states and primary actions.",
       "Subtle translucent cards separated by borders instead of shadows.",
       "Compact compatibility metadata and tag treatment.",
       "Bilingual English and Simplified Chinese content with shared structure."
@@ -144,7 +144,7 @@
       {
         "name": "The Accent-Is-Action Rule",
         "section": "colors",
-        "body": "Use blue for actionable, active, or focused states; a blue accent without a state or action is visual noise."
+        "body": "Use yellow or green for actionable, active, or focused states; accent without a state or action is visual noise."
       },
       {
         "name": "The Surface-Stays-Quiet Rule",
@@ -164,18 +164,18 @@
       {
         "name": "The Focus-Is-Visible Rule",
         "section": "elevation",
-        "body": "Search fields use a 2px Workflow Blue outline with 1px offset. New interactive components must provide an equally visible keyboard focus treatment."
+        "body": "Search fields use a 2px theme accent outline with 1px offset. New interactive components must provide an equally visible keyboard focus treatment."
       }
     ],
     "dos": [
       "Keep content inside the 1080px page width and preserve the hero-to-toolbar-to-grid reading order.",
-      "Use #6D8BFF for focus, active filters, primary actions, and interactive text.",
+      "Use the theme-aware accent tokens for focus, active filters, primary actions, and interactive text.",
       "Preserve bilingual content pairs using the existing locale visibility classes.",
       "Provide a visible focus style and explicit empty state for filterable collections."
     ],
     "donts": [
       "Do not replace Console Black (#0B0D12) with bright white or mid-gray page surfaces.",
-      "Do not spread blue or violet gradients across cards, metadata, or body-copy areas.",
+      "Do not spread accent gradients across cards, metadata, or body-copy areas.",
       "Do not add persistent shadows, glassmorphism blur, glowing particles, or neon AI-tool styling.",
       "Do not rely on color alone to communicate selected filters, focus state, or locale.",
       "Do not introduce components that break English and Simplified Chinese structural parity."
