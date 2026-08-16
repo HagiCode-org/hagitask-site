@@ -49,15 +49,11 @@ const storePageContent = Object.fromEntries(
       <div>
         <h1 class="detail__title">
           <span class="locale-en">{nameEn}</span><span class="locale-zh">{nameZh}</span>
+          <small class="detail__version">v{detail.version}</small>
         </h1>
         <p class="detail__summary">
           <span class="locale-en block">{summaryEn}</span><span class="locale-zh block">{summaryZh}</span>
         </p>
-      </div>
-      <div class="detail__actions">
-        <a class="btn btn--primary" href={detail.installation.packageUrl}>
-          <span class="locale-en">Download package</span><span class="locale-zh">下载包</span>
-        </a>
       </div>
     </header>
 
@@ -290,9 +286,9 @@ const storePageContent = Object.fromEntries(
 
 <style>
   .page {
-    max-width: 820px;
+    max-width: 1280px;
     margin: 0 auto;
-    padding: var(--content-gap) 1.5rem 4rem;
+    padding: var(--content-gap) clamp(1.5rem, 4vw, 3rem) 4rem;
   }
 
   .breadcrumb a {
@@ -318,32 +314,21 @@ const storePageContent = Object.fromEntries(
     font-size: clamp(1.75rem, 4vw, 2.5rem);
   }
 
+  .detail__version {
+    margin-left: .55rem;
+    color: var(--color-muted);
+    font-size: .55em;
+    font-weight: 500;
+    letter-spacing: 0;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
   .detail__summary {
     margin: 0;
     color: var(--color-muted);
     max-width: 48rem;
   }
-
-  .detail__actions {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex: none;
-  }
-
-  .btn {
-    display: inline-flex;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.75rem;
-    font-weight: 600;
-    text-decoration: none;
-  }
-
-  .btn--primary {
-    background: linear-gradient(120deg, var(--color-accent-surface), var(--color-accent-2));
-    color: var(--color-on-accent);
-  }
-
 
   .facts {
     display: grid;
@@ -399,6 +384,10 @@ const storePageContent = Object.fromEntries(
     overflow-x: auto;
   }
 
+  .detail-tabs__panel {
+    width: 100%;
+  }
+
   .detail-tabs__tab {
     flex: 0 0 auto;
     padding: .75rem 1rem;
@@ -423,6 +412,7 @@ const storePageContent = Object.fromEntries(
   .store-page__content :global(h2),
   .store-page__content :global(h3) { color: var(--color-fg); }
   .store-page__content :global(a) { color: var(--color-accent); }
+  .store-page__content { max-width: 78ch; }
   .locale-content { display: none; }
   html[data-locale='en-US'] .locale-content--en-US,
   html[data-locale='zh-CN'] .locale-content--zh-CN,
@@ -437,6 +427,7 @@ const storePageContent = Object.fromEntries(
   .command-nav__link:hover, .command-nav__link:focus-visible, .command-nav__link.is-active { border-color: var(--color-accent); background: var(--color-accent-soft); }
   .command-nav__link span { color: var(--color-muted); font-size: .78rem; }
   .command-list { grid-area: list; min-width: 0; }
+  .command { max-width: none; }
   .command { scroll-margin-top: calc(var(--header-height) + 1rem); }
   .command:target { border-color: var(--color-accent); box-shadow: 0 0 0 2px var(--color-accent-soft); }
   .command h3 { margin-top: 0; }
