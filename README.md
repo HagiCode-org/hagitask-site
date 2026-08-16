@@ -16,3 +16,10 @@ Visit the site: https://tasks.hagicode.com/
 - Community packages source: `hagitask-community-packages` (`https://github.com/HagiCode-org/hagitask-community-packages`)
 - Backend service: `hagitask` (`https://github.com/HagiCode-org/hagitask`)
 - Site conventions reference: `repos/site`
+
+## Detail page presentation
+
+The command catalog, prompt context, and localized `store-page` Markdown used by task
+detail pages are build-time presentation data. They are read from each community
+package but are intentionally kept outside the published `DetailDoc`; the existing
+JSON schema, package URLs, and integrity fields remain unchanged.
