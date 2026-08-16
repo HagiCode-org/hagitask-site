@@ -68,6 +68,13 @@ test('task cards and detail pages expose one navigable command catalog', () => {
   assert.match(detail, /storePageContent/);
   assert.match(detail, /stripFrontmatter\(source\)/);
   assert.match(detail, /presentation\.commands\.length > 0/);
+  assert.doesNotMatch(detail, /<span>\{command\.group\}<\/span>/);
+  assert.match(detail, /command\.group\['en-US'\]/);
+  assert.match(detail, /data-tab="storepage"/);
+  assert.match(detail, /data-tab="metadata"/);
+  assert.match(detail, /data-tab="commands"/);
+  assert.match(detail, /grid-template-areas: 'nav list'/);
+  assert.match(detail, /panel\.hidden = panel\.dataset\.tabPanel !== selected/);
   assert.match(index, /interface TaskPresentation/);
   assert.match(index, /return \{ commands, prompts, storePages/);
 });

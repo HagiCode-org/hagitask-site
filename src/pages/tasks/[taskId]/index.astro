@@ -61,7 +61,19 @@ const storePageContent = Object.fromEntries(
       </div>
     </header>
 
-    <section class="panel store-page" aria-labelledby="store-page-heading">
+    <div class="detail-tabs__list" role="tablist" aria-label="Task detail sections">
+      <button class="detail-tabs__tab is-active" id="storepage-tab" type="button" role="tab" aria-selected="true" aria-controls="storepage-panel" data-tab="storepage">
+        <span class="locale-en">Store page</span><span class="locale-zh">任务介绍</span>
+      </button>
+      <button class="detail-tabs__tab" id="metadata-tab" type="button" role="tab" aria-selected="false" aria-controls="metadata-panel" data-tab="metadata">
+        <span class="locale-en">Metadata</span><span class="locale-zh">元数据</span>
+      </button>
+      <button class="detail-tabs__tab" id="commands-tab" type="button" role="tab" aria-selected="false" aria-controls="commands-panel" data-tab="commands">
+        <span class="locale-en">Commands</span><span class="locale-zh">命令列表</span>
+      </button>
+    </div>
+
+    <section class="panel detail-tab-panel" id="storepage-panel" data-tab-panel="storepage" role="tabpanel" aria-labelledby="storepage-tab">
       <h2 id="store-page-heading"><span class="locale-en">About this task</span><span class="locale-zh">任务介绍</span></h2>
       {
         presentation.storePageLocales.length > 0 ? (
@@ -81,7 +93,7 @@ const storePageContent = Object.fromEntries(
       }
     </section>
 
-    <section class="command-catalog" aria-labelledby="commands-heading">
+    <section class="command-catalog detail-tab-panel" id="commands-panel" data-tab-panel="commands" role="tabpanel" aria-labelledby="commands-tab" hidden>
       <div class="command-catalog__intro">
         <h2 id="commands-heading"><span class="locale-en">Commands</span><span class="locale-zh">命令</span></h2>
         {
@@ -89,7 +101,9 @@ const storePageContent = Object.fromEntries(
             <nav class="command-nav" aria-label="Command navigation">
               {presentation.commands.map((command) => (
                 <a href={`#${command.anchor}`} class="command-nav__link">
-                  <code>/{command.label}</code><span>{command.group}</span>
+                  <code>/{command.label}</code>
+                  <span class="locale-en">{command.group['en-US'] ?? Object.values(command.group)[0]}</span>
+                  <span class="locale-zh">{command.group['zh-CN'] ?? Object.values(command.group)[0]}</span>
                 </a>
               ))}
             </nav>
@@ -124,7 +138,7 @@ const storePageContent = Object.fromEntries(
 
     {
       presentation.prompts && (
-        <section class="panel prompt-context" aria-labelledby="prompt-heading">
+        <section class="panel prompt-context detail-tab-panel" data-tab-panel="metadata" aria-labelledby="prompt-heading" hidden>
           <h2 id="prompt-heading"><span class="locale-en">Prompt context</span><span class="locale-zh">提示词上下文</span></h2>
           <ul class="kv">
             <li><span class="kv__k">Locales / 语言</span><span class="kv__v">{presentation.prompts.supportedLocales.join(', ')}</span></li>
@@ -141,6 +155,7 @@ const storePageContent = Object.fromEntries(
       )
     }
 
+    <div class="detail-tab-panel detail-tab-panel--metadata" id="metadata-panel" data-tab-panel="metadata" role="tabpanel" aria-labelledby="metadata-tab" hidden>
     <dl class="facts">
       <div><dt><span class="locale-en">Version</span><span class="locale-zh">版本</span></dt><dd>v{detail.version}</dd></div>
       <div><dt><span class="locale-en">Category</span><span class="locale-zh">分类</span></dt><dd>{detail.category}</dd></div>
@@ -252,8 +267,26 @@ const storePageContent = Object.fromEntries(
         </li>
       </ul>
     </section>
+    </div>
   </main>
 </BaseLayout>
+
+<script>
+  const tabs = document.querySelectorAll<HTMLButtonElement>('[data-tabs] .detail-tabs__tab, .detail-tabs__tab');
+  const panels = document.querySelectorAll<HTMLElement>('[data-tab-panel]');
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const selected = tab.dataset.tab;
+      if (!selected) return;
+      tabs.forEach((item) => {
+        const active = item.dataset.tab === selected;
+        item.classList.toggle('is-active', active);
+        item.setAttribute('aria-selected', String(active));
+      });
+      panels.forEach((panel) => { panel.hidden = panel.dataset.tabPanel !== selected; });
+    });
+  });
+</script>
 
 <style>
   .page {
@@ -358,6 +391,35 @@ const storePageContent = Object.fromEntries(
     color: var(--color-accent);
   }
 
+  .detail-tabs__list {
+    display: flex;
+    gap: .35rem;
+    margin: 0 0 1rem;
+    border-bottom: 1px solid var(--color-border);
+    overflow-x: auto;
+  }
+
+  .detail-tabs__tab {
+    flex: 0 0 auto;
+    padding: .75rem 1rem;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--color-muted);
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .detail-tabs__tab:hover,
+  .detail-tabs__tab:focus-visible,
+  .detail-tabs__tab.is-active {
+    color: var(--color-fg);
+    border-bottom-color: var(--color-accent);
+  }
+
+  .detail-tab-panel[hidden] { display: none; }
+  .panel--nested { margin-bottom: 1rem; }
+
   .store-page__content :global(h2),
   .store-page__content :global(h3) { color: var(--color-fg); }
   .store-page__content :global(a) { color: var(--color-accent); }
@@ -366,12 +428,15 @@ const storePageContent = Object.fromEntries(
   html[data-locale='zh-CN'] .locale-content--zh-CN,
   html[data-locale='en-US'] .locale-content--fallback-en,
   html[data-locale='zh-CN'] .locale-content--fallback-zh { display: block; }
-  .command-catalog { margin-top: 2rem; }
+  .command-catalog { margin-top: 0; }
   .command-catalog__intro h2 { color: var(--color-accent); }
-  .command-nav { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.5rem; }
+  .command-catalog__intro { grid-area: nav; }
+  .command-catalog { display: grid; grid-template-columns: minmax(11rem, 0.28fr) minmax(0, 1fr); grid-template-areas: 'nav list'; gap: 1.5rem; }
+  .command-nav { display: grid; align-content: start; gap: .5rem; }
   .command-nav__link { display: grid; gap: .1rem; padding: .65rem .8rem; border: 1px solid var(--color-border); color: var(--color-fg); text-decoration: none; }
-  .command-nav__link:hover, .command-nav__link:focus-visible { border-color: var(--color-accent); }
+  .command-nav__link:hover, .command-nav__link:focus-visible, .command-nav__link.is-active { border-color: var(--color-accent); background: var(--color-accent-soft); }
   .command-nav__link span { color: var(--color-muted); font-size: .78rem; }
+  .command-list { grid-area: list; min-width: 0; }
   .command { scroll-margin-top: calc(var(--header-height) + 1rem); }
   .command:target { border-color: var(--color-accent); box-shadow: 0 0 0 2px var(--color-accent-soft); }
   .command h3 { margin-top: 0; }
@@ -442,6 +507,7 @@ const storePageContent = Object.fromEntries(
 
   @media (max-width: 620px) {
     .kv li { grid-template-columns: 1fr; gap: .15rem; }
-    .command-nav { display: grid; grid-template-columns: 1fr 1fr; }
+    .command-catalog { grid-template-columns: 1fr; grid-template-areas: 'nav' 'list'; gap: 1rem; }
+    .command-nav { grid-template-columns: 1fr 1fr; }
   }
 </style>
