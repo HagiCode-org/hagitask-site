@@ -2,7 +2,7 @@
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { createMarkdownProcessor } from '@astrojs/markdown-remark';
-import { getCatalog, type DetailDoc, type TaskPresentation } from '@/lib/community-index';
+import { getCatalog, stripFrontmatter, type DetailDoc, type TaskPresentation } from '@/lib/community-index';
 
 export const getStaticPaths: GetStaticPaths = () => {
   const { details, presentations } = getCatalog();
@@ -32,7 +32,7 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
 const storePageContent = Object.fromEntries(
   await Promise.all(
     Object.entries(presentation.storePages).map(async ([locale, source]) => {
-      const result = await markdown.render(source);
+      const result = await markdown.render(stripFrontmatter(source));
       return [locale, result.code] as const;
     }),
   ),

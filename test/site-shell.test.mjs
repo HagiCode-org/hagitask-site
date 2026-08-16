@@ -66,6 +66,7 @@ test('task cards and detail pages expose one navigable command catalog', () => {
   assert.match(detail, /command-nav/);
   assert.match(detail, /id=\{command\.anchor\}/);
   assert.match(detail, /storePageContent/);
+  assert.match(detail, /stripFrontmatter\(source\)/);
   assert.match(detail, /presentation\.commands\.length > 0/);
   assert.match(index, /interface TaskPresentation/);
   assert.match(index, /return \{ commands, prompts, storePages/);

@@ -228,6 +228,10 @@ function parseFrontmatter(md: string): Record<string, unknown> {
   return result;
 }
 
+export function stripFrontmatter(md: string): string {
+  return md.replace(/^---\r?\n[\s\S]*?\r?\n---\s*/, '');
+}
+
 function walkFiles(dir: string, base: string, out: ZipEntry[]): void {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const full = join(dir, entry.name);
