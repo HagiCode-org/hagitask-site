@@ -131,6 +131,32 @@ export interface DetailDoc {
   metadata: Record<string, unknown>;
 }
 
+export interface CommandPresentation {
+  id: string;
+  label: string;
+  group: Record<string, string>;
+  description: Record<string, string>;
+  skill?: string;
+  docsSlug?: string;
+  preludeTemplate: string;
+  anchor: string;
+}
+
+export interface PromptPresentation {
+  defaultLocale: string;
+  supportedLocales: string[];
+  inputs: Array<{ name: string; source?: string; required?: boolean; description?: string }>;
+  templates: string[];
+}
+
+export interface TaskPresentation {
+  commands: CommandPresentation[];
+  prompts?: PromptPresentation;
+  storePages: Record<string, string>;
+  storePageDefaultLocale: string;
+  storePageLocales: string[];
+}
+
 export interface IndexDoc {
   schemaVersion: 1;
   generatedAt: string;
@@ -144,10 +170,16 @@ export interface Catalog {
   tasks: NormalizedTask[];
   index: IndexDoc;
   details: DetailDoc[];
+  presentations: Record<string, TaskPresentation>;
 }
 
-function readJson(path: string): any {
-  return JSON.parse(readFileSync(path, 'utf8'));
+function readJson(path: string, taskId?: string): any {
+  try {
+    return JSON.parse(readFileSync(path, 'utf8'));
+  } catch (error) {
+    const prefix = taskId ? `Task ${taskId}: ` : '';
+    throw new Error(`${prefix}unable to read required resource ${path}: ${error instanceof Error ? error.message : String(error)}`);
+  }
 }
 
 function readText(path: string): string {
@@ -205,7 +237,121 @@ function walkFiles(dir: string, base: string, out: ZipEntry[]): void {
     } else if (entry.isFile()) {
       out.push({ name: rel, data: readFileSync(full) });
     }
+
   }
+}
+
+function getNestedValue(bundle: Record<string, unknown>, key: string): string | undefined {
+  const value = key.split('.').reduce<unknown>((current, part) => {
+    if (!current || typeof current !== 'object') return undefined;
+    return (current as Record<string, unknown>)[part];
+  }, bundle);
+  return typeof value === 'string' ? value : undefined;
+}
+
+function safeCommandId(id: string): string {
+  return id.toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '') || 'command';
+}
+
+function resolveResource(taskId: string, taskDir: string, relativePath: string, required: boolean): string | undefined {
+  const full = join(taskDir, relativePath);
+  if (!existsSync(full)) {
+    if (required) throw new Error(`Task ${taskId}: required resource is missing: ${relativePath}`);
+    return undefined;
+  }
+  return full;
+}
+
+function buildPresentation(taskId: string, taskDir: string, manifest: any): TaskPresentation {
+  const localization = manifest.localization ?? {};
+  const supportedLocales: string[] = Array.isArray(localization.supportedLocales) ? localization.supportedLocales : ['en-US'];
+  const defaultLocale = typeof localization.defaultLocale === 'string' ? localization.defaultLocale : supportedLocales[0] ?? 'en-US';
+  const localeBundles: Record<string, Record<string, unknown>> = {};
+  for (const locale of supportedLocales) {
+    const relativePath = localization.bundles?.[locale] ?? `./locales/${locale}.json`;
+    const full = resolveResource(taskId, taskDir, relativePath.replace(/^\.\//, ''), false);
+    if (full) localeBundles[locale] = readJson(full, taskId);
+  }
+  const commandsPath = manifest.ui?.commands
+    ? resolveResource(taskId, taskDir, manifest.ui.commands.replace(/^\.\//, ''), true)
+    : undefined;
+  const commandDoc = commandsPath ? readJson(commandsPath, taskId) : undefined;
+  const groups = new Map<string, Record<string, string>>(
+    (commandDoc?.groups ?? []).map((group: any) => [
+      group.id,
+      Object.fromEntries(
+        Object.entries(localeBundles).map(([locale, bundle]) => [
+          locale,
+          getNestedValue(bundle, group.title?.key ?? '') ?? group.id,
+        ]),
+      ),
+    ]),
+  );
+  const usedAnchors = new Map<string, number>();
+  const commands: CommandPresentation[] = (commandDoc?.commands ?? []).map((command: any) => {
+    const label = typeof command.label === 'string' ? command.label : command.id;
+    const descriptionKey = command.description?.key;
+    const description = Object.fromEntries(
+      Object.entries(localeBundles).map(([locale, bundle]) => [
+        locale,
+        (descriptionKey && getNestedValue(bundle, descriptionKey)) ?? label,
+      ]),
+    );
+    if (Object.keys(description).length === 0) description[defaultLocale] = label;
+    const baseAnchor = `command-${safeCommandId(command.id)}`;
+    const count = usedAnchors.get(baseAnchor) ?? 0;
+    usedAnchors.set(baseAnchor, count + 1);
+    return {
+      id: command.id,
+      label,
+      group: groups.get(command.groupId) ?? { [defaultLocale]: command.groupId ?? 'General' },
+      description,
+      ...(command.skill ? { skill: command.skill } : {}),
+      ...(command.docsSlug ? { docsSlug: command.docsSlug } : {}),
+      preludeTemplate: command.preludeTemplate ?? command.id,
+      anchor: count === 0 ? baseAnchor : `${baseAnchor}-${count + 1}`,
+    };
+  });
+
+  let prompts: PromptPresentation | undefined;
+  const promptsPath = manifest.backend?.prompts
+    ? resolveResource(taskId, taskDir, manifest.backend.prompts.replace(/^\.\//, ''), true)
+    : undefined;
+  if (promptsPath) {
+    const promptDoc = readJson(promptsPath, taskId);
+    const templates: string[] = [];
+    const addTemplate = (value: unknown) => {
+      if (typeof value !== 'string') return;
+      const relative = value.replace(/^\.\//, '');
+      if (!resolveResource(taskId, taskDir, join('backend', relative), true)) return;
+      templates.push(join('backend', relative));
+    };
+    for (const entry of promptDoc.variants?.entries ?? []) {
+      addTemplate(entry.systemTemplate);
+      addTemplate(entry.userTemplate);
+    }
+    for (const entry of Object.values(promptDoc.locales ?? {})) {
+      addTemplate((entry as any).systemTemplate);
+      addTemplate((entry as any).userTemplate);
+    }
+    addTemplate(promptDoc.variants?.fallback?.systemTemplate);
+    addTemplate(promptDoc.variants?.fallback?.userTemplate);
+    prompts = {
+      defaultLocale: promptDoc.defaultLocale ?? defaultLocale,
+      supportedLocales: Array.isArray(promptDoc.supportedLocales) ? promptDoc.supportedLocales : supportedLocales,
+      inputs: Array.isArray(promptDoc.inputs) ? promptDoc.inputs : [],
+      templates: Array.from(new Set(templates)),
+    };
+  }
+
+  const storePages: Record<string, string> = {};
+  for (const locale of supportedLocales) {
+    const full = resolveResource(taskId, taskDir, `store-page/index.${locale}.md`, false);
+    if (full) storePages[locale] = readText(full);
+  }
+  const storePageLocales = Object.keys(storePages);
+  const storePageDefaultLocale = storePages[defaultLocale] ? defaultLocale : storePageLocales[0] ?? defaultLocale;
+  return { commands, prompts, storePages, storePageDefaultLocale, storePageLocales };
 }
 
 export function buildPackageBuffer(taskId: string): Buffer {
@@ -239,7 +385,7 @@ export function listTaskIds(): string[] {
 
 function normalizeTask(taskId: string): NormalizedTask {
   const taskDir = join(DATA_DIR, taskId);
-  const manifest = readJson(join(taskDir, 'manifest.json'));
+  const manifest = readJson(join(taskDir, 'manifest.json'), taskId);
   const preset = readJson(join(taskDir, 'backend', 'task-preset.json'));
 
   const name: Record<string, string> = {};
@@ -411,13 +557,19 @@ export function getCatalog(): Catalog {
   }
 
   const details = tasks.map((t) => buildDetailDoc(t, generatedAt));
+  const presentations = Object.fromEntries(
+    tasks.map((task) => {
+      const manifest = readJson(join(DATA_DIR, task.taskId, 'manifest.json'), task.taskId);
+      return [task.taskId, buildPresentation(task.taskId, join(DATA_DIR, task.taskId), manifest)];
+    }),
+  );
   const index = buildIndexDoc(tasks, details, generatedAt);
 
   // Schema conformance: invalid source data must fail the build.
   assertValid(index, indexSchema, '/index.json');
   details.forEach((d) => assertValid(d, detailSchema, `/tasks/${d.taskId}.json`));
 
-  return { generatedAt, tasks, index, details };
+  return { generatedAt, tasks, index, details, presentations };
 }
 
 export const PACKAGES_DIR = PUBLIC_PACKAGES_DIR;

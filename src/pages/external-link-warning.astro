@@ -1,0 +1,96 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { resolveExternalLink } from '@/lib/external-links';
+
+const rawTarget = Astro.url.searchParams.get('url');
+const resolved = resolveExternalLink(rawTarget, Astro.url.origin);
+const target = resolved?.isExternal ? resolved.url.toString() : null;
+---
+
+<BaseLayout title={target ? 'Leaving HagiTask · HagiTask' : 'Invalid link · HagiTask'}>
+  <main class="warning-page">
+    <section class="warning-card" aria-labelledby="warning-title">
+      {
+        target ? (
+          <>
+            <p class="warning-card__eyebrow">HagiTask</p>
+            <h1 id="warning-title">
+              <span class="locale-en">You are leaving HagiTask</span>
+              <span class="locale-zh">即将访问外部网站</span>
+            </h1>
+            <p class="warning-card__intro">
+              <span class="locale-en">You are about to visit a website operated by a third party:</span>
+              <span class="locale-zh">你将离开 HagiTask，前往由第三方运营的网站：</span>
+            </p>
+            <p class="warning-card__target" data-warning-target>{target}</p>
+            <p class="warning-card__note">
+              <span class="locale-en">Please confirm the destination before continuing.</span>
+              <span class="locale-zh">请确认目标地址后再继续。</span>
+            </p>
+            <div class="warning-card__actions">
+              <button class="warning-card__button warning-card__button--secondary" type="button" data-warning-cancel>
+                <span class="locale-en">Cancel and return</span><span class="locale-zh">取消并返回</span>
+              </button>
+              <button class="warning-card__button warning-card__button--primary" type="button" data-warning-continue>
+                <span class="locale-en">Continue</span><span class="locale-zh">继续访问</span>
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p class="warning-card__eyebrow">HagiTask</p>
+            <h1 id="warning-title">
+              <span class="locale-en">Invalid destination</span><span class="locale-zh">无效目标地址</span>
+            </h1>
+            <p class="warning-card__intro">
+              <span class="locale-en">This link is missing or cannot be opened safely.</span>
+              <span class="locale-zh">链接缺失或无法安全打开。</span>
+            </p>
+            <a class="warning-card__button warning-card__button--primary" href="/">
+              <span class="locale-en">Return home</span><span class="locale-zh">返回首页</span>
+            </a>
+          </>
+        )
+      }
+    </section>
+  </main>
+</BaseLayout>
+
+{target && (
+  <script is:inline define:vars={{ target }}>
+    const continueButton = document.querySelector('[data-warning-continue]');
+    const cancelButton = document.querySelector('[data-warning-cancel]');
+    const opensNewWindow = new URLSearchParams(window.location.search).get('window') === 'new';
+
+    continueButton?.addEventListener('click', () => {
+      if (opensNewWindow) {
+        const opened = window.open(target, '_blank', 'noopener,noreferrer');
+        if (opened) window.close();
+        else window.location.assign(target);
+      } else {
+        window.location.assign(target);
+      }
+    });
+
+    cancelButton?.addEventListener('click', () => {
+      // Only go back when the referrer proves this page came from HagiTask; direct visits go home.
+      if (document.referrer.startsWith(window.location.origin) && window.history.length > 1) window.history.back();
+      else window.location.assign('/');
+    });
+  </script>
+)}
+
+<style>
+  .warning-page { min-height: 55vh; display: grid; place-items: center; padding: var(--content-gap) 1rem; }
+  .warning-card { width: min(100%, 44rem); padding: clamp(1.5rem, 5vw, 3rem); border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); }
+  .warning-card__eyebrow { margin: 0 0 .75rem; color: var(--color-accent); font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+  .warning-card h1 { margin: 0 0 1rem; font-size: clamp(1.7rem, 5vw, 2.5rem); }
+  .warning-card__intro, .warning-card__note { color: var(--color-muted); }
+  .warning-card__target { margin: 1.25rem 0; padding: 1rem; border: 1px solid var(--color-border); border-radius: var(--radius); color: var(--color-accent); overflow-wrap: anywhere; word-break: break-word; }
+  .warning-card__actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 2rem; }
+  .warning-card__button { display: inline-flex; align-items: center; justify-content: center; min-height: 2.75rem; padding: .65rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius); cursor: pointer; text-decoration: none; }
+  .warning-card__button--primary { background: var(--color-accent-surface); color: var(--color-on-accent); }
+  .warning-card__button--secondary { background: transparent; color: var(--color-fg); }
+  @media (max-width: 520px) { .warning-card__actions, .warning-card__button { width: 100%; } }
+  @media (prefers-reduced-motion: reduce) { .warning-card { scroll-behavior: auto; } }
+</style>

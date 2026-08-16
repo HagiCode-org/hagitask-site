@@ -41,3 +41,32 @@ test('PromoteCard is optional, bilingual, dismissible, and safe', () => {
   assert.match(card, /data-promote-close/);
   assert.match(card, /noopener noreferrer/);
 });
+
+test('external navigation uses one validated warning route', () => {
+  const layout = read('layouts/BaseLayout.astro');
+  const links = read('lib/external-links.ts');
+  const warning = read('pages/external-link-warning.astro');
+  assert.match(layout, /createWarningUrl/);
+  assert.match(layout, /resolveExternalLink/);
+  assert.match(links, /http:/);
+  assert.match(links, /https:/);
+  assert.match(links, /warning\.searchParams\.set\('url'/);
+  assert.match(links, /url\.origin !==/);
+  assert.match(warning, /Invalid destination/);
+  assert.match(warning, /window\.history\.back/);
+  assert.match(warning, /noopener,noreferrer/);
+});
+
+test('task cards and detail pages expose one navigable command catalog', () => {
+  const card = read('components/TaskCard.astro');
+  const detail = read('pages/tasks/[taskId]/index.astro');
+  const index = read('lib/community-index.ts');
+  assert.match(card, /<a class="task-card" href=\{`\/tasks\/\$\{task\.taskId\}\/`\}/);
+  assert.doesNotMatch(card, /<a class="task-card__link"/);
+  assert.match(detail, /command-nav/);
+  assert.match(detail, /id=\{command\.anchor\}/);
+  assert.match(detail, /storePageContent/);
+  assert.match(detail, /presentation\.commands\.length > 0/);
+  assert.match(index, /interface TaskPresentation/);
+  assert.match(index, /return \{ commands, prompts, storePages/);
+});

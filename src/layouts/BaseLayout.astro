@@ -77,6 +77,26 @@ const { title = 'HagiTask', description = 'HagiTask 是 HagiCode 生态下的任
         });
       })();
     </script>
+    <script>
+      import { createWarningUrl, resolveExternalLink } from '@/lib/external-links';
+
+      document.addEventListener('click', (event) => {
+        if (!(event instanceof MouseEvent) || event.defaultPrevented || event.button !== 0) return;
+        const element = event.target;
+        if (!(element instanceof Element)) return;
+        const anchor = element.closest('a[href]');
+        if (!(anchor instanceof HTMLAnchorElement) || anchor.hasAttribute('download')) return;
+        const resolved = resolveExternalLink(anchor.getAttribute('href'), window.location.origin);
+        if (!resolved?.isExternal) return;
+        event.preventDefault();
+        const warningUrl = createWarningUrl(resolved.url, window.location.origin, anchor.target === '_blank');
+        if (anchor.target === '_blank') {
+          window.open(warningUrl, '_blank', 'noopener,noreferrer');
+        } else {
+          window.location.assign(warningUrl);
+        }
+      });
+    </script>
   </body>
 </html>
 
