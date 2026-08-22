@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hagicode.local/designs/task-preset-plugin-schemas/locales.schema.json",
+  "title": "Task Preset Plugin Locale Bundle",
+  "type": "object",
+  "additionalProperties": {
+    "$ref": "#/$defs/localeNode"
+  },
+  "$defs": {
+    "localeNode": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/localeNode"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="en-US" data-locale="en-US" data-theme="dark"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="HagiTask 是 HagiCode 生态下的任务与流程管理站点。"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><title>Invalid link · HagiTask</title><script>
+      (() => {
+        const root = document.documentElement;
+        const validLocale = (value) => value === 'en-US' || value === 'zh-CN';
+        const validTheme = (value) => value === 'dark' || value === 'light';
+        let locale = 'en-US';
+        let theme;
+        try {
+          locale = validLocale(localStorage.getItem('hagitask-locale')) ? localStorage.getItem('hagitask-locale') : locale;
+          theme = localStorage.getItem('hagitask-theme');
+        } catch {}
+        if (!validTheme(theme)) theme = window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        root.dataset.locale = locale;
+        root.lang = locale;
+        root.dataset.theme = theme;
+      })();
+    </script><script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script><script>(function(){const laId = "L6b88a5yK4h2Xnci";
+
+        if (typeof LA !== 'undefined' && typeof LA.init === 'function') {
+          LA.init({
+            id: laId,
+            ck: laId,
+            autoTrack: true,
+            hashMode: true,
+            screenRecord: true,
+          });
+        }
+      })();</script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-EN03FMT2Q4"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-EN03FMT2Q4');</script><style>.warning-page:where(.astro-3cto3cmx){min-height:55vh;padding:var(--content-gap) 1rem;place-items:center;display:grid}.warning-card:where(.astro-3cto3cmx){border:1px solid var(--color-border);border-radius:var(--radius);background:var(--color-surface);width:min(100%,44rem);padding:clamp(1.5rem,5vw,3rem)}.warning-card__eyebrow:where(.astro-3cto3cmx){color:var(--color-accent);letter-spacing:.12em;text-transform:uppercase;margin:0 0 .75rem;font-size:.8rem;font-weight:700}.warning-card:where(.astro-3cto3cmx) h1:where(.astro-3cto3cmx){margin:0 0 1rem;font-size:clamp(1.7rem,5vw,2.5rem)}.warning-card__intro:where(.astro-3cto3cmx),.warning-card__note:where(.astro-3cto3cmx){color:var(--color-muted)}.warning-card__target:where(.astro-3cto3cmx){border:1px solid var(--color-border);border-radius:var(--radius);color:var(--color-accent);overflow-wrap:anywhere;word-break:break-word;margin:1.25rem 0;padding:1rem}.warning-card__actions:where(.astro-3cto3cmx){flex-wrap:wrap;gap:.75rem;margin-top:2rem;display:flex}.warning-card__button:where(.astro-3cto3cmx){border:1px solid var(--color-border);border-radius:var(--radius);cursor:pointer;justify-content:center;align-items:center;min-height:2.75rem;padding:.65rem 1rem;text-decoration:none;display:inline-flex}.warning-card__button--primary:where(.astro-3cto3cmx){background:var(--color-accent-surface);color:var(--color-on-accent)}.warning-card__button--secondary:where(.astro-3cto3cmx){color:var(--color-fg);background:0 0}@media (width<=520px){.warning-card__actions:where(.astro-3cto3cmx),.warning-card__button:where(.astro-3cto3cmx){width:100%}}@media (prefers-reduced-motion:reduce){.warning-card:where(.astro-3cto3cmx){scroll-behavior:auto}}
+</style><link rel="stylesheet" href="/_astro/BaseLayout.BUvfrEWF.css"></head> <body> <header class="site-header astro-3ef6ksr2"> <div class="site-header__inner astro-3ef6ksr2"> <a class="site-header__brand astro-3ef6ksr2" href="/" aria-label="HagiTask home"> <span class="site-header__mark astro-3ef6ksr2">H</span> <span class="astro-3ef6ksr2">HagiTask</span> </a> <nav class="site-header__nav astro-3ef6ksr2" aria-label="Primary navigation"> <a href="/" class="astro-3ef6ksr2"><span class="locale-en astro-3ef6ksr2">Catalog</span><span class="locale-zh astro-3ef6ksr2">目录</span></a> <a href="/schemas/" class="astro-3ef6ksr2"><span class="locale-en astro-3ef6ksr2">Schemas</span><span class="locale-zh astro-3ef6ksr2">Schema</span></a> <a href="https://github.com/HagiCode-org/hagitask" target="_blank" rel="noopener noreferrer" class="astro-3ef6ksr2"><span class="locale-en astro-3ef6ksr2">Community</span><span class="locale-zh astro-3ef6ksr2">社区</span></a> </nav> <div class="site-header__controls astro-3ef6ksr2"> <div class="locale-toggle astro-3ef6ksr2" role="group" aria-label="Language"> <button type="button" data-locale-toggle="en-US" class="astro-3ef6ksr2">EN</button> <button type="button" data-locale-toggle="zh-CN" class="astro-3ef6ksr2">中文</button> </div> <button class="theme-toggle astro-3ef6ksr2" type="button" data-theme-toggle aria-pressed="false"> <span aria-hidden="true" class="astro-3ef6ksr2">◐</span><span class="theme-toggle__label locale-en astro-3ef6ksr2">Theme</span><span class="theme-toggle__label locale-zh astro-3ef6ksr2">主题</span> </button> <button class="menu-toggle astro-3ef6ksr2" type="button" data-menu-toggle aria-expanded="false" aria-controls="mobile-navigation"> <span class="sr-only astro-3ef6ksr2">Toggle navigation</span><span aria-hidden="true" class="astro-3ef6ksr2">☰</span> </button> </div> </div> <div class="mobile-navigation astro-3ef6ksr2" id="mobile-navigation" data-mobile-navigation hidden> <div class="mobile-navigation__backdrop astro-3ef6ksr2" data-menu-close></div> <nav class="mobile-navigation__panel astro-3ef6ksr2" aria-label="Mobile navigation"> <a href="/" class="astro-3ef6ksr2"><span class="locale-en astro-3ef6ksr2">Catalog</span><span class="locale-zh astro-3ef6ksr2">目录</span></a> <a href="/schemas/" class="astro-3ef6ksr2"><span class="locale-en astro-3ef6ksr2">Schemas</span><span class="locale-zh astro-3ef6ksr2">Schema</span></a> <a href="https://github.com/HagiCode-org/hagitask" target="_blank" rel="noopener noreferrer" class="astro-3ef6ksr2"><span class="locale-en astro-3ef6ksr2">Community</span><span class="locale-zh astro-3ef6ksr2">社区</span></a> </nav> </div> </header>  <main class="warning-page astro-3cto3cmx"> <section class="warning-card astro-3cto3cmx" aria-labelledby="warning-title">  <p class="warning-card__eyebrow astro-3cto3cmx">HagiTask</p> <h1 id="warning-title" class="astro-3cto3cmx"> <span class="locale-en astro-3cto3cmx">Invalid destination</span><span class="locale-zh astro-3cto3cmx">无效目标地址</span> </h1> <p class="warning-card__intro astro-3cto3cmx"> <span class="locale-en astro-3cto3cmx">This link is missing or cannot be opened safely.</span> <span class="locale-zh astro-3cto3cmx">链接缺失或无法安全打开。</span> </p> <a class="warning-card__button warning-card__button--primary astro-3cto3cmx" href="/"> <span class="locale-en astro-3cto3cmx">Return home</span><span class="locale-zh astro-3cto3cmx">返回首页</span> </a>  </section> </main>  <footer class="site-footer astro-sz7xmlte"> <div class="site-footer__inner astro-sz7xmlte"> <div class="site-footer__grid astro-sz7xmlte"> <div class="astro-sz7xmlte"><p class="site-footer__brand astro-sz7xmlte">HagiTask</p><p class="site-footer__tagline astro-sz7xmlte"><span class="locale-en astro-sz7xmlte">Reusable workflows for HagiCode.</span><span class="locale-zh astro-sz7xmlte">HagiCode 的可复用工作流。</span></p></div> <nav aria-label="Product" class="astro-sz7xmlte"><h2 class="astro-sz7xmlte"><span class="locale-en astro-sz7xmlte">Product</span><span class="locale-zh astro-sz7xmlte">产品</span></h2><ul class="astro-sz7xmlte"><li class="astro-sz7xmlte"><a href="/" class="astro-sz7xmlte"><span class="locale-en astro-sz7xmlte">Catalog</span><span class="locale-zh astro-sz7xmlte">任务目录</span></a></li><li class="astro-sz7xmlte"><a href="/schemas/" class="astro-sz7xmlte"><span class="locale-en astro-sz7xmlte">Schemas</span><span class="locale-zh astro-sz7xmlte">Schema</span></a></li></ul></nav><nav aria-label="Resources" class="astro-sz7xmlte"><h2 class="astro-sz7xmlte"><span class="locale-en astro-sz7xmlte">Resources</span><span class="locale-zh astro-sz7xmlte">资源</span></h2><ul class="astro-sz7xmlte"><li class="astro-sz7xmlte"><a href="/index.json" class="astro-sz7xmlte"><span class="locale-en astro-sz7xmlte">Index JSON</span><span class="locale-zh astro-sz7xmlte">Index JSON</span></a></li><li class="astro-sz7xmlte"><a href="https://github.com/HagiCode-org/hagitask/tree/main/schemas" target="_blank" rel="noopener noreferrer" class="astro-sz7xmlte"><span class="locale-en astro-sz7xmlte">Schema reference</span><span class="locale-zh astro-sz7xmlte">Schema 参考</span></a></li></ul></nav><nav aria-label="Community" class="astro-sz7xmlte"><h2 class="astro-sz7xmlte"><span class="locale-en astro-sz7xmlte">Community</span><span class="locale-zh astro-sz7xmlte">社区</span></h2><ul class="astro-sz7xmlte"><li class="astro-sz7xmlte"><a href="https://github.com/HagiCode-org/hagitask#contribute-a-task" target="_blank" rel="noopener noreferrer" class="astro-sz7xmlte"><span class="locale-en astro-sz7xmlte">Contribute</span><span class="locale-zh astro-sz7xmlte">贡献指南</span></a></li><li class="astro-sz7xmlte"><a href="https://github.com/HagiCode-org/hagitask-site" target="_blank" rel="noopener noreferrer" class="astro-sz7xmlte"><span class="locale-en astro-sz7xmlte">Site source</span><span class="locale-zh astro-sz7xmlte">站点源码</span></a></li><li class="astro-sz7xmlte"><a href="https://github.com/HagiCode-org/hagitask" target="_blank" rel="noopener noreferrer" class="astro-sz7xmlte"><span class="locale-en astro-sz7xmlte">Community source</span><span class="locale-zh astro-sz7xmlte">社区源码</span></a></li></ul></nav> </div> <div class="site-footer__bottom astro-sz7xmlte"><span class="astro-sz7xmlte">HagiTask · © 2026 Hagicode</span><span class="astro-sz7xmlte"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" aria-label="ICP 备案信息，跳转工业和信息化部备案管理系统" class="astro-sz7xmlte">闽ICP备2026004153号-1</a> · <a href="http://www.beian.gov.cn/portal/registerSystemInfo" target="_blank" rel="noopener noreferrer" aria-label="公安备案信息，跳转全国互联网安全管理服务平台" class="astro-sz7xmlte">闽公网安备35011102351148号</a></span></div> </div> </footer> <script>
+      (() => {
+        const root = document.documentElement;
+        const setLocale = (locale) => {
+          if (locale !== 'en-US' && locale !== 'zh-CN') return;
+          root.dataset.locale = locale; root.lang = locale;
+          document.querySelectorAll('[data-locale-toggle]').forEach((button) => button.setAttribute('aria-pressed', button.dataset.localeToggle === locale ? 'true' : 'false'));
+          try { localStorage.setItem('hagitask-locale', locale); } catch {}
+        };
+        const setTheme = (theme) => {
+          if (theme !== 'dark' && theme !== 'light') return;
+          root.dataset.theme = theme;
+          const button = document.querySelector('[data-theme-toggle]');
+          button?.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
+          button?.setAttribute('aria-label', theme === 'light' ? 'Use dark theme' : 'Use light theme');
+          try { localStorage.setItem('hagitask-theme', theme); } catch {}
+        };
+        setLocale(root.dataset.locale || 'en-US'); setTheme(root.dataset.theme || 'dark');
+        document.addEventListener('click', (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+          const locale = target.closest('[data-locale-toggle]')?.getAttribute('data-locale-toggle');
+          if (locale) setLocale(locale);
+          if (target.closest('[data-theme-toggle]')) setTheme(root.dataset.theme === 'light' ? 'dark' : 'light');
+          const menu = document.querySelector('[data-mobile-navigation]');
+          const toggle = target.closest('[data-menu-toggle]');
+          const close = target.closest('[data-menu-close]') || target.closest('[data-mobile-navigation] a');
+          if (toggle || close) {
+            const open = Boolean(toggle) && menu?.hasAttribute('hidden');
+            if (open) { menu?.removeAttribute('hidden'); document.body.style.overflow = 'hidden'; }
+            else if (close) { menu?.setAttribute('hidden', ''); document.body.style.overflow = ''; }
+            document.querySelector('[data-menu-toggle]')?.setAttribute('aria-expanded', open ? 'true' : 'false');
+          }
+        });
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') { document.querySelector('[data-mobile-navigation]')?.setAttribute('hidden', ''); document.body.style.overflow = ''; document.querySelector('[data-menu-toggle]')?.setAttribute('aria-expanded', 'false'); }
+        });
+      })();
+    </script> <script type="module">var e=new Set([`http:`,`https:`]);function t(t,n){if(!t?.trim())return null;try{let r=new URL(t,n);return e.has(r.protocol)?{url:r,isExternal:r.origin!==new URL(n).origin}:null}catch{return null}}function n(e,t,n=!1){let r=new URL(`/external-link-warning/`,t);return r.searchParams.set(`url`,e.toString()),n&&r.searchParams.set(`window`,`new`),`${r.pathname}${r.search}`}document.addEventListener(`click`,e=>{if(!(e instanceof MouseEvent)||e.defaultPrevented||e.button!==0)return;let r=e.target;if(!(r instanceof Element))return;let i=r.closest(`a[href]`);if(!(i instanceof HTMLAnchorElement)||i.hasAttribute(`download`))return;let a=t(i.getAttribute(`href`),window.location.origin);if(!a?.isExternal)return;e.preventDefault();let o=n(a.url,window.location.origin,i.target===`_blank`);i.target===`_blank`?window.open(o,`_blank`,`noopener,noreferrer`):window.location.assign(o)});</script> </body> </html> 
