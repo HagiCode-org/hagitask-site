@@ -35,6 +35,7 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
         <a class="hero__btn hero__btn--ghost" href="https://github.com/HagiCode-org/hagitask-site" target="_blank" rel="noopener noreferrer">
           <span class="locale-en">Site source</span><span class="locale-zh">站点源码</span>
         </a>
+        <span class="hero__store-badge" data-store-badge aria-label="Microsoft Store"></span>
       </div>
     </section>
 
@@ -181,6 +182,26 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
     color: var(--color-fg);
   }
 
+  /* Microsoft Store badge is injected by Microsoft's script as a fixed-width <a><img>.
+     Constrain it so it can never exceed the viewport width, especially on mobile. */
+  .hero__store-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .hero__store-badge > a,
+  .hero__store-badge > img,
+  .hero__store-badge img {
+    display: block;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    border: 0;
+  }
+
 
   .toolbar {
     display: grid;
@@ -254,6 +275,9 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
     .hero__actions { width: 100%; }
     .hero__btn { flex: 1 1 auto; min-width: 0; }
     .hero__actions img { max-width: 100%; height: auto; }
+    .hero__store-badge { flex: 0 0 auto; width: 100%; }
+    .hero__store-badge > a,
+    .hero__store-badge > img { margin: 0 auto; }
     .toolbar { grid-template-columns: 1fr; }
     .toolbar__filters { grid-column: 1; }
   }
