@@ -152,19 +152,23 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
 
   .hero__actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
     justify-content: center;
     align-items: center;
-    flex-wrap: wrap;
+    max-width: 100%;
   }
 
   .hero__btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     padding: 0.7rem 1.25rem;
     border-radius: 4px;
     font-weight: 600;
     text-decoration: none;
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   .hero__btn--primary {
@@ -247,6 +251,9 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
   @media (max-width: 700px) {
     .page { padding-inline: .75rem; }
     .hero { padding: 3rem 1rem; }
+    .hero__actions { width: 100%; }
+    .hero__btn { flex: 1 1 auto; min-width: 0; }
+    .hero__actions img { max-width: 100%; height: auto; }
     .toolbar { grid-template-columns: 1fr; }
     .toolbar__filters { grid-column: 1; }
   }
