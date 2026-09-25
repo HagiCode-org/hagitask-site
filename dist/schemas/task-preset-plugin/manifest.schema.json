@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hagicode.local/designs/task-preset-plugin-schemas/manifest.schema.json",
+  "title": "Task Preset Plugin Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "taskPresetId",
+    "version",
+    "displayName",
+    "description",
+    "kind",
+    "status",
+    "localization",
+    "ui",
+    "site",
+    "backend"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "type": "string"
+    },
+    "taskPresetId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "version": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string"
+    },
+    "displayName": {
+      "$ref": "#/$defs/localizedKey"
+    },
+    "description": {
+      "$ref": "#/$defs/localizedKey"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "custom-executor",
+        "session-automation",
+        "proposal-stage"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "experimental",
+        "disabled"
+      ]
+    },
+    "owner": {
+      "type": "string"
+    },
+    "entrypoints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "menuSurface": {
+          "type": "string"
+        },
+        "drawerId": {
+          "type": "string"
+        }
+      }
+    },
+    "activation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "defaultState"
+      ],
+      "properties": {
+        "defaultState": {
+          "type": "string",
+          "enum": [
+            "passive",
+            "enabled"
+          ]
+        }
+      }
+    },
+    "localization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "strategy",
+        "namespace",
+        "defaultLocale",
+        "supportedLocales"
+      ],
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "plugin-bundles",
+            "host-i18n-bridge"
+          ]
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "defaultLocale": {
+          "type": "string"
+        },
+        "supportedLocales": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "bundles": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "fallbackLocaleMap": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "strategy": {
+                "const": "plugin-bundles"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "bundles"
+            ]
+          }
+        }
+      ]
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "supportsSceneBinding": {
+          "type": "boolean"
+        },
+        "supportsCommandCatalog": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ui": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "panel"
+      ],
+      "properties": {
+        "panel": {
+          "type": "string"
+        },
+        "commands": {
+          "type": "string"
+        }
+      }
+    },
+    "site": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "storePage"
+      ],
+      "properties": {
+        "storePage": {
+          "type": "string"
+        }
+      }
+    },
+    "backend": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "taskPreset",
+        "prompts"
+      ],
+      "properties": {
+        "taskPreset": {
+          "type": "string"
+        },
+        "prompts": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "localizedKey": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
