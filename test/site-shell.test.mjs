@@ -6,14 +6,19 @@ import test from 'node:test';
 const root = path.resolve(import.meta.dirname, '..');
 const read = (file) => fs.readFileSync(path.join(root, 'src', file), 'utf8');
 
-test('BaseLayout mounts one shared header and footer with preference allowlists', () => {
+test('BaseLayout mounts one shared footer and promotion banner with synchronized preferences', () => {
   const layout = read('layouts/BaseLayout.astro');
   assert.match(layout, /<Header \/>/);
-  assert.match(layout, /<Footer \/>/);
+  assert.match(layout, /<Footer locale="en-US" links=\{\{ rssFeedUrl: '\/rss\.xml' \}\} \/>/);
+  assert.match(layout, /<template id="footer-zh-template"><Footer locale="zh-CN" links=\{\{ rssFeedUrl: '\/rss\.xml', rssLocaleFeedUrl: '\/rss\.zh-CN\.xml' \}\} \/>/);
+  assert.match(layout, /<PromotoBanner locale="en-US" \/>/);
   assert.match(layout, /hagitask-locale/);
   assert.match(layout, /hagitask-theme/);
   assert.match(layout, /value === 'en-US' \|\| value === 'zh-CN'/);
   assert.match(layout, /value === 'dark' \|\| value === 'light'/);
+  assert.match(layout, /footer\.innerHTML = locale === 'zh-CN' \? chineseFooter : englishFooter/);
+  assert.match(layout, /banner\.dataset\.locale = locale/);
+  assert.match(layout, /new Event\('astro:page-load'\)/);
 });
 
 test('Header exposes accessible desktop and mobile controls', () => {
@@ -25,21 +30,43 @@ test('Header exposes accessible desktop and mobile controls', () => {
   assert.match(header, /rel="noopener noreferrer"/);
 });
 
-test('Footer contains grouped information architecture and safe external links', () => {
-  const footer = read('components/Footer.astro');
-  assert.match(footer, /Product/);
-  assert.match(footer, /Resources/);
-  assert.match(footer, /Community/);
-  assert.match(footer, /noopener noreferrer/);
+test('shared footer uses Hagilight default links without a site-specific link configuration', () => {
+  const layout = read('layouts/BaseLayout.astro');
+  assert.match(layout, /import Footer from '@hagicode\/hagilight\/Footer'/);
+  assert.match(layout, /links=\{\{ rssFeedUrl: '\/rss\.xml' \}\}/);
+  assert.match(layout, /locale="zh-CN" links=\{\{ rssFeedUrl: '\/rss\.xml', rssLocaleFeedUrl: '\/rss\.zh-CN\.xml' \}\}/);
+  assert.doesNotMatch(layout, /extraLinks|overrides|removeLinks|siteId/);
+  assert.equal(fs.existsSync(path.join(root, 'src/config/hagilight-footer.ts')), false);
 });
 
-test('PromoteCard is optional, bilingual, dismissible, and safe', () => {
-  const card = read('components/PromoteCard.astro');
-  const loader = read('lib/promote-loader.ts');
-  assert.match(card, /loadFirstActivePromotion/);
-  assert.match(loader, /index-catalog/);
-  assert.match(card, /data-promote-close/);
-  assert.match(card, /noopener noreferrer/);
+test('homepage uses the shared promotion only and old local mounts are removed', () => {
+  const layout = read('layouts/BaseLayout.astro');
+  const home = read('pages/index.astro');
+  assert.match(layout, /@hagicode\/hagilight\/PromotoBanner/);
+  assert.doesNotMatch(home, /PromoteCard/);
+  assert.equal(fs.existsSync(path.join(root, 'src/components/PromoteCard.astro')), false);
+  assert.equal(fs.existsSync(path.join(root, 'src/lib/promote-loader.ts')), false);
+  assert.equal(fs.existsSync(path.join(root, 'src/components/Footer.astro')), false);
+});
+
+test('HTML layout emits RSS discovery and route-specific SEO without locale alternates', () => {
+  const layout = read('layouts/BaseLayout.astro');
+  const detail = read('pages/tasks/[taskId]/index.astro');
+  const feed = read('pages/rss.xml.ts');
+  const chineseFeed = read('pages/rss.zh-CN.xml.ts');
+  assert.match(layout, /@hagicode\/hagilight\/SEOHead/);
+  assert.match(layout, /name: 'description'/);
+  assert.match(layout, /rel="alternate" type="application\/rss\+xml"[^>]+href="\/rss\.xml"/);
+  assert.match(layout, /canonicalUrl/);
+  assert.doesNotMatch(layout, /hreflang/);
+  assert.match(detail, /description=\{detail\.description\['en-US'\]/);
+  assert.match(feed, /generateRssFeed/);
+  assert.match(feed, /link: `\/tasks\/\$\{task\.taskId\}\/`/);
+  assert.doesNotMatch(feed, /pubDate/);
+  assert.match(chineseFeed, /language: 'zh-CN'/);
+  assert.match(chineseFeed, /task\.name\['zh-CN'\]/);
+  assert.match(chineseFeed, /task\.summary\['zh-CN'\]/);
+  assert.doesNotMatch(chineseFeed, /pubDate/);
 });
 
 test('external navigation uses one validated warning route', () => {
