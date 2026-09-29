@@ -7,7 +7,11 @@ const resolved = resolveExternalLink(rawTarget, Astro.url.origin);
 const target = resolved?.isExternal ? resolved.url.toString() : null;
 ---
 
-<BaseLayout title={target ? 'Leaving HagiTask · HagiTask' : 'Invalid link · HagiTask'}>
+<BaseLayout
+  title={target ? 'Leaving HagiTask · HagiTask' : 'Invalid link · HagiTask'}
+  description="Confirm the destination before continuing to an external website."
+  noindex
+>
   <main class="warning-page">
     <section class="warning-card" aria-labelledby="warning-title">
       {

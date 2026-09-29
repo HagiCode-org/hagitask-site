@@ -1,20 +1,33 @@
 ---
 import AnalyticsScripts from '@/components/AnalyticsScripts.astro';
-import Footer from '@/components/Footer.astro';
 import Header from '@/components/Header.astro';
+import Footer from '@hagicode/hagilight/Footer';
+import PromotoBanner from '@hagicode/hagilight/PromotoBanner';
+import SEOHead from '@hagicode/hagilight/SEOHead';
 import '@/styles/site-shell.css';
 
-interface Props { title?: string; description?: string; }
-const { title = 'HagiTask', description = 'HagiTask 是 HagiCode 生态下的任务与流程管理站点。' } = Astro.props;
+interface Props { title?: string; description?: string; noindex?: boolean; }
+const {
+  title = 'HagiTask',
+  description = 'Browse reusable tasks and workflows from the HagiCode community.',
+  noindex = false,
+} = Astro.props;
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
 ---
 <!doctype html>
 <html lang="en-US" data-locale="en-US" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title="HagiTask RSS" href="/rss.xml" />
     <title>{title}</title>
+    <SEOHead
+      site={Astro.site}
+      page={{ url: canonicalUrl, title, description }}
+      head={[{ tag: 'meta', attrs: { name: 'description', content: description } }]}
+    />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <script is:inline>
       (() => {
         const root = document.documentElement;
@@ -37,13 +50,28 @@ const { title = 'HagiTask', description = 'HagiTask 是 HagiCode 生态下的任
   <body>
     <Header />
     <slot />
-    <Footer />
+    <PromotoBanner locale="en-US" />
+    <Footer locale="en-US" links={{ rssFeedUrl: '/rss.xml' }} />
+    <template id="footer-zh-template"><Footer locale="zh-CN" links={{ rssFeedUrl: '/rss.xml', rssLocaleFeedUrl: '/rss.zh-CN.xml' }} /></template>
     <script is:inline>
       (() => {
         const root = document.documentElement;
+        const footer = document.querySelector('footer.hagilight-footer');
+        const footerTemplate = document.querySelector('#footer-zh-template');
+        const englishFooter = footer?.innerHTML ?? '';
+        const chineseFooter = footerTemplate?.content.querySelector('footer')?.innerHTML ?? englishFooter;
+        const banner = document.querySelector('hagilight-promoto-banner');
         const setLocale = (locale) => {
           if (locale !== 'en-US' && locale !== 'zh-CN') return;
           root.dataset.locale = locale; root.lang = locale;
+          if (footer) {
+            footer.innerHTML = locale === 'zh-CN' ? chineseFooter : englishFooter;
+            footer.dataset.locale = locale;
+          }
+          if (banner) {
+            banner.dataset.locale = locale;
+            document.dispatchEvent(new Event('astro:page-load'));
+          }
           document.querySelectorAll('[data-locale-toggle]').forEach((button) => button.setAttribute('aria-pressed', button.dataset.localeToggle === locale ? 'true' : 'false'));
           try { localStorage.setItem('hagitask-locale', locale); } catch {}
         };

@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TaskCard from '@/components/TaskCard.astro';
-import PromoteCard from '@/components/PromoteCard.astro';
 import { getCatalog, SOURCE_ROOT } from '@/lib/community-index';
 
 const { index } = getCatalog();
@@ -11,9 +10,11 @@ const contributionGuideUrl = `${SOURCE_ROOT}#contribute-a-task`;
 const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/schemas';
 ---
 
-<BaseLayout title="HagiTask · Community Tasks">
+<BaseLayout
+  title="HagiTask · Community Tasks"
+  description="Browse reusable HagiCode community tasks, workflows, and integrations."
+>
   <main class="page">
-    <PromoteCard />
     <section class="hero" aria-labelledby="page-title">
       <p class="hero__eyebrow">HagiCode · Community Tasks</p>
       <h1 class="hero__title" id="page-title">

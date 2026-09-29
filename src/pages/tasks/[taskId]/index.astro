@@ -39,7 +39,10 @@ const storePageContent = Object.fromEntries(
 );
 ---
 
-<BaseLayout title={`${nameEn} · HagiTask`}>
+<BaseLayout
+  title={`${nameEn} · HagiTask`}
+  description={detail.description['en-US'] || summaryEn || `Details for the ${nameEn} HagiTask community task.`}
+>
   <main class="page">
     <nav class="breadcrumb">
       <a href="/">&larr; <span class="locale-en">All tasks</span><span class="locale-zh">全部任务</span></a>

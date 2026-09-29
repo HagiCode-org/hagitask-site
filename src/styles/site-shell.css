@@ -7,6 +7,55 @@
   margin: 0 auto;
 }
 
+.hagilight-footer {
+  --hagilight-footer-border: var(--color-border);
+  --hagilight-footer-color: var(--color-muted);
+  color: var(--color-muted);
+}
+
+.hagilight-footer h2 {
+  color: var(--color-accent);
+}
+
+.hagilight-footer a {
+  min-height: 1.5rem;
+  color: var(--color-muted);
+}
+
+.hagilight-promoto {
+  --sl-color-accent: var(--color-accent);
+  --sl-color-accent-high: var(--color-accent);
+  --sl-color-bg: var(--color-surface);
+  --sl-color-bg-sidebar: var(--color-bg);
+  --sl-color-bg-nav: var(--color-surface);
+  --sl-color-black: #000;
+  --sl-color-gray-1: var(--color-fg);
+  --sl-color-gray-5: var(--color-border);
+  --sl-color-text: var(--color-fg);
+  --sl-color-text-high: var(--color-fg);
+  --sl-text-xs: 0.75rem;
+  --sl-text-sm: 0.875rem;
+}
+
+.hagilight-promoto__shell {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-fg);
+}
+
+.hagilight-promoto__dismiss,
+.hagilight-promoto__control {
+  border-color: var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+}
+
+@media (max-width: 40rem) {
+  .hagilight-footer__filings {
+    justify-content: flex-start;
+  }
 }
