@@ -29,7 +29,7 @@ node scripts/assert-sync-config.mjs   # 校验同步工作流配置
 ## 社区内容来源
 
 - 站点内容来自 `hagitask-community-packages`，**不再**以 Git submodule 挂载。最近一次成功发布的 Community 提交记录在根目录 `community-packages.commit`（单行 40 位小写 hex SHA）。
-- 构建从 `HAGITASK_COMMUNITY_SOURCE_DIR` 指向的 Community checkout 根目录读取 `data/`；未设置时回退到本地 `community-packages/` checkout。`@hagicode/hagitask@0.1.2` 负责包源校验与发布 schema，`src/lib/community-index.ts` 继续对生成的 `/index.json` 与 `/tasks/<taskId>.json` 做 Schema 校验后发布。
+- 构建优先从 `HAGITASK_COMMUNITY_SOURCE_DIR` 指向的 Community checkout 读取 `data/`；未设置时自动使用同级 `../hagitask-community-packages/`，再回退到本地 `community-packages/` checkout。`@hagicode/hagitask@0.1.2` 负责包源校验与发布 schema，`src/lib/community-index.ts` 继续对生成的 `/index.json` 与 `/tasks/<taskId>.json` 做 Schema 校验后发布。
 - `Sync Community Content` 工作流（`.github/workflows/sync-community-content.yml`）定时/手动比较 Community `main` 与 `community-packages.commit`，仅在变化时触发 `HagiTask Site Deploy gh-pages`（传入精确 commit），并在其成功后回写状态文件。
 - 包的提交前校验在 Community 仓库内完成（`npm run validate`），本站点是发布前第二道防线。
 
@@ -47,6 +47,8 @@ node scripts/assert-sync-config.mjs   # 校验同步工作流配置
 
 ## 共享站点壳层
 
-- `BaseLayout.astro` 统一挂载 `Header` 与 `Footer`，并集中管理 `hagitask-locale`、`hagitask-theme` 偏好。
+- `BaseLayout.astro` 统一挂载 `Header`、使用默认链接的 `@hagicode/hagilight` `Footer` 与 `PromotoBanner`，并集中管理 `hagitask-locale`、`hagitask-theme` 偏好。切换语言时保留同一个 Footer 节点。
 - 页面内容使用 `--max-width`、`--content-gap`、`--color-surface` 和 `--color-border` 等共享 token；双语文案继续使用 `.locale-en` / `.locale-zh`。
-- 新增外部链接必须使用 `target="_blank"` 时同时设置 `rel="noopener noreferrer"`；可选推广内容应通过 `PromoteCard` 的有效数据校验后再渲染。
+- `/rss.xml` 和 `/rss.zh-CN.xml` 分别提供英文和简体中文社区任务 RSS feed，使用 Hagilight renderer，且不从构建时间生成文章发布日期；Footer 通过 Hagilight 内建的 `rssFeedUrl` 和 `rssLocaleFeedUrl` 显示对应订阅源。
+- `BaseLayout.astro` 使用 Hagilight SEO Head 生成页面级 canonical、description、Open Graph 与 Twitter 元数据；双语内容共用 URL，不要添加虚假的 locale alternates。外链警告页不索引并排除在 sitemap 外。
+- 新增外部链接必须使用 `target="_blank"` 时同时设置 `rel="noopener noreferrer"`；推广由 Hagilight banner 管理，不要添加独立的本地 promotion mount 或 loader。

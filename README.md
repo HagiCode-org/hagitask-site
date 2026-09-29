@@ -17,6 +17,12 @@ Visit the site: https://tasks.hagicode.com/
 - Backend service: `hagitask` (`https://github.com/HagiCode-org/hagitask`)
 - Site conventions reference: `repos/site`
 
+## Shared shell, feed, and SEO
+
+- `@hagicode/hagilight` provides the shared footer with its default links, promotion banner, RSS renderer, and SEO head. The footer's built-in RSS links target `/rss.xml` and the Simplified Chinese `/rss.zh-CN.xml` feed.
+- The site owns both feeds; they are generated from the community catalog and intentionally omit build-generated publication dates.
+- `BaseLayout.astro` owns canonical URLs, descriptions, Open Graph, Twitter, and RSS discovery. English and Simplified Chinese share URLs, so the site does not emit locale alternates. The external-link warning page is `noindex` and excluded from the sitemap.
+
 ## Detail page presentation
 
 The command catalog, prompt context, and localized `store-page` Markdown used by task
