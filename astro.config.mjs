@@ -23,7 +23,12 @@ export default defineConfig({
     },
   },
   integrations: [
-    sitemap(),
+    sitemap({
+      filter: (page) => {
+        const pathname = new URL(page).pathname;
+        return pathname !== '/external-link-warning/' && !/\.(?:json|xml)$/u.test(pathname);
+      },
+    }),
     mdx(),
     communityPackages(),
   ],
