@@ -9,7 +9,8 @@
  *
  * The Community source is resolved from `HAGITASK_COMMUNITY_SOURCE_DIR` (set by the
  * deploy workflow to a runner-local checkout of an exact commit) and falls back to a
- * local `community-packages/` checkout for development without the dynamic checkout.
+ * sibling `hagitask-community-packages` checkout, then a local `community-packages/`
+ * checkout for development without the dynamic checkout.
  */
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -21,12 +22,14 @@ import { createZip, type ZipEntry } from './zip';
 // Paths are resolved from the project root. Both `astro build` and the prebuild
 // script run with the site repository as the current working directory. The build
 // reads the Community repository from `HAGITASK_COMMUNITY_SOURCE_DIR` (a runner-local
-// checkout of the exact commit to publish) and falls back to a local `community-packages/`
-// checkout for development. Task packages live under `<community>/data/`; publication schemas
-// come from the pinned @hagicode/hagitask package.
+// checkout of the exact commit to publish), then checks the sibling mono repo checkout
+// before falling back to local `community-packages/`. Task packages live under
+// `<community>/data/`; publication schemas come from the pinned @hagicode/hagitask package.
 // (import.meta.url is not used because the build bundles this module into dist/.prerender/.)
 const ROOT = process.cwd();
-const COMMUNITY_ROOT = process.env.HAGITASK_COMMUNITY_SOURCE_DIR || join(ROOT, 'community-packages');
+const siblingCommunityRoot = join(ROOT, '..', 'hagitask-community-packages');
+const COMMUNITY_ROOT = process.env.HAGITASK_COMMUNITY_SOURCE_DIR
+  || (existsSync(join(siblingCommunityRoot, 'data')) ? siblingCommunityRoot : join(ROOT, 'community-packages'));
 const DATA_DIR = join(COMMUNITY_ROOT, 'data');
 const SCHEMA_DIR = join(ROOT, 'node_modules', '@hagicode', 'hagitask', 'schemas');
 const PUBLIC_PACKAGES_DIR = join(ROOT, 'public', 'packages');
