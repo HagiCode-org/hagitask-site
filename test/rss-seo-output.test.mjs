@@ -10,17 +10,21 @@ const count = (value, pattern) => [...value.matchAll(pattern)].length;
 
 test('built feed uses catalog content and absolute task pages without publication dates', { skip: !built }, () => {
   const feed = read('rss.xml');
+  const englishAlias = read('rss.en.xml');
   const chineseFeed = read('rss.zh-CN.xml');
   const catalog = JSON.parse(read('index.json'));
   const items = [...feed.matchAll(/<item>([\s\S]*?)<\/item>/gu)].map(([, item]) => item);
+  const englishAliasItems = [...englishAlias.matchAll(/<item>([\s\S]*?)<\/item>/gu)].map(([, item]) => item);
   const chineseItems = [...chineseFeed.matchAll(/<item>([\s\S]*?)<\/item>/gu)].map(([, item]) => item);
   const links = items.map((item) => item.match(/<link>([^<]+)<\/link>/u)?.[1]);
   const chineseLinks = chineseItems.map((item) => item.match(/<link>([^<]+)<\/link>/u)?.[1]);
 
   assert.match(feed, /^<\?xml version="1\.0" encoding="UTF-8"\?><rss\b/u);
+  assert.match(feed, /<language>en-US<\/language>/u);
   assert.match(chineseFeed, /<language>zh-CN<\/language>/u);
   assert.match(feed, /<channel>[\s\S]*<\/channel><\/rss>$/u);
   assert.equal(items.length, catalog.tasks.length);
+  assert.deepEqual(englishAliasItems.map((item) => item.match(/<link>([^<]+)<\/link>/u)?.[1]), links);
   assert.equal(chineseItems.length, catalog.tasks.length);
   assert.deepEqual(
     links.map((link) => new URL(link).pathname),

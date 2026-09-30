@@ -52,21 +52,23 @@ test('homepage uses the shared promotion only and old local mounts are removed',
 test('HTML layout emits RSS discovery and route-specific SEO without locale alternates', () => {
   const layout = read('layouts/BaseLayout.astro');
   const detail = read('pages/tasks/[taskId]/index.astro');
-  const feed = read('pages/rss.xml.ts');
-  const chineseFeed = read('pages/rss.zh-CN.xml.ts');
+  const config = read('../astro.config.mjs');
+  const feed = read('lib/rss-feed.ts');
   assert.match(layout, /@hagicode\/hagilight\/SEOHead/);
   assert.match(layout, /name: 'description'/);
   assert.match(layout, /rel="alternate" type="application\/rss\+xml"[^>]+href="\/rss\.xml"/);
   assert.match(layout, /canonicalUrl/);
   assert.doesNotMatch(layout, /hreflang/);
   assert.match(detail, /description=\{detail\.description\['en-US'\]/);
-  assert.match(feed, /generateRssFeed/);
+  assert.match(config, /hagilightRss\(/);
+  assert.match(config, /getFeed: '\.\/src\/lib\/rss-feed\.ts'/);
+  assert.match(feed, /getCatalog\(\)\.index\.tasks/);
   assert.match(feed, /link: `\/tasks\/\$\{task\.taskId\}\/`/);
   assert.doesNotMatch(feed, /pubDate/);
-  assert.match(chineseFeed, /language: 'zh-CN'/);
-  assert.match(chineseFeed, /task\.name\['zh-CN'\]/);
-  assert.match(chineseFeed, /task\.summary\['zh-CN'\]/);
-  assert.doesNotMatch(chineseFeed, /pubDate/);
+  assert.match(feed, /task\.name\[locale\]/);
+  assert.match(feed, /task\.summary\[locale\]/);
+  assert.equal(fs.existsSync(path.join(root, 'src/pages/rss.xml.ts')), false);
+  assert.equal(fs.existsSync(path.join(root, 'src/pages/rss.zh-CN.xml.ts')), false);
 });
 
 test('external navigation uses one validated warning route', () => {
