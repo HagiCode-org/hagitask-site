@@ -1,8 +1,8 @@
 ---
 import AnalyticsScripts from '@/components/AnalyticsScripts.astro';
 import Header from '@/components/Header.astro';
-import Footer from '@hagicode/hagilight/Footer';
-import PromotoBanner from '@hagicode/hagilight/PromotoBanner';
+import Footer from '@hagicode/hagilight-core/Footer';
+import PromotoBanner from '@hagicode/hagilight-core/PromotoBanner';
 import SEOHead from '@hagicode/hagilight/SEOHead';
 import '@/styles/site-shell.css';
 
@@ -20,7 +20,6 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin)
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate" type="application/rss+xml" title="HagiTask RSS" href="/rss.xml" />
     <title>{title}</title>
     <SEOHead
       site={Astro.site}
@@ -51,8 +50,8 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin)
     <Header />
     <slot />
     <PromotoBanner locale="en-US" />
-    <Footer locale="en-US" links={{ rssFeedUrl: '/rss.xml' }} />
-    <template id="footer-zh-template"><Footer locale="zh-CN" links={{ rssFeedUrl: '/rss.xml', rssLocaleFeedUrl: '/rss.zh-CN.xml' }} /></template>
+    <Footer locale="en-US" />
+    <template id="footer-zh-template"><Footer locale="zh-CN" /></template>
     <script is:inline>
       (() => {
         const root = document.documentElement;

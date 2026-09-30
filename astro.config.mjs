@@ -1,8 +1,7 @@
 import { defineConfig } from 'astro/config';
-import sitemap from '@astrojs/sitemap';
 import mdx from '@astrojs/mdx';
 import { communityPackages } from './src/integrations/communityPackages.ts';
-import { hagilightRss } from '@hagicode/hagilight/integration';
+import { hagilight } from '@hagicode/hagilight/integration';
 
 // https://astro.build/config
 export default defineConfig({
@@ -24,21 +23,9 @@ export default defineConfig({
     },
   },
   integrations: [
-    sitemap({
-      filter: (page) => {
-        const pathname = new URL(page).pathname;
-        return pathname !== '/external-link-warning/' && !/\.(?:json|xml)$/u.test(pathname);
-      },
-    }),
     mdx(),
     communityPackages(),
-    hagilightRss({
-      locales: {
-        root: { lang: 'en-US' },
-        'zh-CN': { lang: 'zh-CN' },
-      },
-      getFeed: './src/lib/rss-feed.ts',
-    }),
+    hagilight(),
   ],
   scopedStyleStrategy: 'where',
 });
