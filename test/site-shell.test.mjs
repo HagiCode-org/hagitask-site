@@ -9,8 +9,8 @@ const read = (file) => fs.readFileSync(path.join(root, 'src', file), 'utf8');
 test('BaseLayout mounts one shared footer and promotion banner with synchronized preferences', () => {
   const layout = read('layouts/BaseLayout.astro');
   assert.match(layout, /<Header \/>/);
-  assert.match(layout, /<Footer locale="en-US" links=\{\{ rssFeedUrl: '\/rss\.xml' \}\} \/>/);
-  assert.match(layout, /<template id="footer-zh-template"><Footer locale="zh-CN" links=\{\{ rssFeedUrl: '\/rss\.xml', rssLocaleFeedUrl: '\/rss\.zh-CN\.xml' \}\} \/>/);
+  assert.match(layout, /<Footer locale="en-US" \/>/);
+  assert.match(layout, /<template id="footer-zh-template"><Footer locale="zh-CN" \/>/);
   assert.match(layout, /<PromotoBanner locale="en-US" \/>/);
   assert.match(layout, /hagitask-locale/);
   assert.match(layout, /hagitask-theme/);
@@ -32,9 +32,9 @@ test('Header exposes accessible desktop and mobile controls', () => {
 
 test('shared footer uses Hagilight default links without a site-specific link configuration', () => {
   const layout = read('layouts/BaseLayout.astro');
-  assert.match(layout, /import Footer from '@hagicode\/hagilight\/Footer'/);
-  assert.match(layout, /links=\{\{ rssFeedUrl: '\/rss\.xml' \}\}/);
-  assert.match(layout, /locale="zh-CN" links=\{\{ rssFeedUrl: '\/rss\.xml', rssLocaleFeedUrl: '\/rss\.zh-CN\.xml' \}\}/);
+  assert.match(layout, /import Footer from '@hagicode\/hagilight-core\/Footer'/);
+  assert.match(layout, /<Footer locale="en-US" \/>/);
+  assert.match(layout, /<Footer locale="zh-CN" \/>/);
   assert.doesNotMatch(layout, /extraLinks|overrides|removeLinks|siteId/);
   assert.equal(fs.existsSync(path.join(root, 'src/config/hagilight-footer.ts')), false);
 });
@@ -42,31 +42,25 @@ test('shared footer uses Hagilight default links without a site-specific link co
 test('homepage uses the shared promotion only and old local mounts are removed', () => {
   const layout = read('layouts/BaseLayout.astro');
   const home = read('pages/index.astro');
-  assert.match(layout, /@hagicode\/hagilight\/PromotoBanner/);
+  assert.match(layout, /@hagicode\/hagilight-core\/PromotoBanner/);
   assert.doesNotMatch(home, /PromoteCard/);
   assert.equal(fs.existsSync(path.join(root, 'src/components/PromoteCard.astro')), false);
   assert.equal(fs.existsSync(path.join(root, 'src/lib/promote-loader.ts')), false);
   assert.equal(fs.existsSync(path.join(root, 'src/components/Footer.astro')), false);
 });
 
-test('HTML layout emits RSS discovery and route-specific SEO without locale alternates', () => {
+test('HTML layout uses shared SEO without site-specific RSS configuration', () => {
   const layout = read('layouts/BaseLayout.astro');
   const detail = read('pages/tasks/[taskId]/index.astro');
   const config = read('../astro.config.mjs');
-  const feed = read('lib/rss-feed.ts');
   assert.match(layout, /@hagicode\/hagilight\/SEOHead/);
   assert.match(layout, /name: 'description'/);
-  assert.match(layout, /rel="alternate" type="application\/rss\+xml"[^>]+href="\/rss\.xml"/);
+  assert.doesNotMatch(layout, /application\/rss\+xml|rssFeedUrl|rssLocaleFeedUrl/);
   assert.match(layout, /canonicalUrl/);
   assert.doesNotMatch(layout, /hreflang/);
   assert.match(detail, /description=\{detail\.description\['en-US'\]/);
-  assert.match(config, /hagilightRss\(/);
-  assert.match(config, /getFeed: '\.\/src\/lib\/rss-feed\.ts'/);
-  assert.match(feed, /getCatalog\(\)\.index\.tasks/);
-  assert.match(feed, /link: `\/tasks\/\$\{task\.taskId\}\/`/);
-  assert.doesNotMatch(feed, /pubDate/);
-  assert.match(feed, /task\.name\[locale\]/);
-  assert.match(feed, /task\.summary\[locale\]/);
+  assert.match(config, /hagilight\(\)/);
+  assert.doesNotMatch(config, /hagilightRss|rss-feed|sitemap\(\s*\{/);
   assert.equal(fs.existsSync(path.join(root, 'src/pages/rss.xml.ts')), false);
   assert.equal(fs.existsSync(path.join(root, 'src/pages/rss.zh-CN.xml.ts')), false);
 });
