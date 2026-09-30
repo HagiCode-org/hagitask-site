@@ -49,6 +49,6 @@ node scripts/assert-sync-config.mjs   # 校验同步工作流配置
 
 - `BaseLayout.astro` 统一挂载 `Header`、使用默认链接的 `@hagicode/hagilight` `Footer` 与 `PromotoBanner`，并集中管理 `hagitask-locale`、`hagitask-theme` 偏好。切换语言时保留同一个 Footer 节点。
 - 页面内容使用 `--max-width`、`--content-gap`、`--color-surface` 和 `--color-border` 等共享 token；双语文案继续使用 `.locale-en` / `.locale-zh`。
-- `/rss.xml` 和 `/rss.zh-CN.xml` 分别提供英文和简体中文社区任务 RSS feed，使用 Hagilight renderer，且不从构建时间生成文章发布日期；Footer 通过 Hagilight 内建的 `rssFeedUrl` 和 `rssLocaleFeedUrl` 显示对应订阅源。
+- `@hagicode/hagilight` 0.3.1 的 core RSS integration 从 `src/lib/rss-feed.ts` 读取任务索引，生成英文 `/rss.xml`（兼容 `/rss.en.xml`）和简体中文 `/rss.zh-CN.xml`；不从构建时间生成文章发布日期。Footer 使用 `rssFeedUrl` 和 `rssLocaleFeedUrl` 指向对应订阅源，页面 alternate link 指向默认订阅源。
 - `BaseLayout.astro` 使用 Hagilight SEO Head 生成页面级 canonical、description、Open Graph 与 Twitter 元数据；双语内容共用 URL，不要添加虚假的 locale alternates。外链警告页不索引并排除在 sitemap 外。
 - 新增外部链接必须使用 `target="_blank"` 时同时设置 `rel="noopener noreferrer"`；推广由 Hagilight banner 管理，不要添加独立的本地 promotion mount 或 loader。
