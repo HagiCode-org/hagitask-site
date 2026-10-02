@@ -25,7 +25,14 @@ export default defineConfig({
   integrations: [
     mdx(),
     communityPackages(),
-    hagilight(),
+    hagilight({
+      rss: {
+        locales: {
+          root: { lang: 'en' },
+          'zh-CN': { lang: 'zh-CN' },
+        },
+      },
+    }),
   ],
   scopedStyleStrategy: 'where',
 });

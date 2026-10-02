@@ -59,7 +59,8 @@ test('HTML layout uses shared SEO without site-specific RSS configuration', () =
   assert.match(layout, /canonicalUrl/);
   assert.doesNotMatch(layout, /hreflang/);
   assert.match(detail, /description=\{detail\.description\['en-US'\]/);
-  assert.match(config, /hagilight\(\)/);
+  assert.match(config, /hagilight\(\s*\{/);
+  assert.match(config, /rss:\s*\{/);
   assert.doesNotMatch(config, /hagilightRss|rss-feed|sitemap\(\s*\{/);
   assert.equal(fs.existsSync(path.join(root, 'src/pages/rss.xml.ts')), false);
   assert.equal(fs.existsSync(path.join(root, 'src/pages/rss.zh-CN.xml.ts')), false);
