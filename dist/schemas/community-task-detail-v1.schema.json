@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tasks.hagicode.com/schemas/community-task-detail-v1.schema.json",
+  "title": "HagiTask Community Task Detail v1",
+  "description": "Standalone, machine-readable detail contract for a single community HagiTask. Published at /tasks/<taskId>.json. It repeats identity metadata for standalone retrieval and adds description, requirements, resources, installation, documentation, and localization. The package archive is the installation unit; documentation links are optional metadata.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "taskId",
+    "version",
+    "publisher",
+    "source",
+    "name",
+    "summary",
+    "category",
+    "tags",
+    "compatibility",
+    "resources",
+    "installation",
+    "documentation"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "taskId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "publisher": { "type": "string", "minLength": 1 },
+    "source": { "type": "string", "minLength": 1 },
+    "publishedAt": { "type": "string", "format": "date-time" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "name": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    },
+    "summary": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    },
+    "description": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "string" },
+      "description": "Optional longer localized description keyed by locale."
+    },
+    "category": { "type": "string", "minLength": 1 },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "compatibility": { "$ref": "#/$defs/compatibility" },
+    "requirements": {
+      "type": "array",
+      "description": "Normalized runtime requirements derived from backend/task-preset.json.",
+      "items": {
+        "type": "object",
+        "required": ["type", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "type": { "type": "string", "enum": ["agent", "skills", "cli", "host", "capability"] },
+          "name": { "type": "string", "minLength": 1 },
+          "command": { "type": "string" },
+          "args": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "manifest": { "type": "string", "description": "Public URL or site-root-relative path to the manifest." },
+        "backend": { "type": "string" },
+        "frontend": { "type": "string" },
+        "prompts": { "type": "string" },
+        "locales": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Locale bundle identifiers or public paths."
+        },
+        "storePage": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Public paths to store-page documents."
+        }
+      }
+    },
+    "installation": {
+      "type": "object",
+      "required": ["packageUrl", "mediaType", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "packageUrl": {
+          "type": "string",
+          "pattern": "^/packages/[a-z0-9][a-z0-9-]*\\.zip$"
+        },
+        "mediaType": { "const": "application/zip" },
+        "size": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Byte size of the published archive when known."
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "Lowercase SHA-256 digest of the exact published archive bytes."
+        },
+        "algorithm": { "const": "sha256" }
+      }
+    },
+    "documentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "storePage": {
+          "type": "object",
+          "description": "Localized store-page URLs keyed by locale code.",
+          "additionalProperties": { "type": "string" }
+        },
+        "external": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["label", "url"],
+            "additionalProperties": false,
+            "properties": {
+              "label": { "type": "string" },
+              "url": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "localization": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "defaultLocale": { "type": "string" },
+        "supportedLocales": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Optional source-of-truth metadata preserved from the package manifest (owner, status, icon, kind, etc.)."
+    }
+  },
+  "$defs": {
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "agent": { "type": "string" },
+        "skills": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "cli": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "command": { "type": "string" },
+              "args": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      }
+    }
+  }
+}
