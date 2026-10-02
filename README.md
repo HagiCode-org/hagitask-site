@@ -20,7 +20,7 @@ Visit the site: https://tasks.hagicode.com/
 ## Shared shell, feed, and SEO
 
 - `@hagicode/hagilight` provides the shared footer with its default links, promotion banner, RSS renderer, and SEO head. The footer's built-in RSS links target `/rss.xml` and the Simplified Chinese `/rss.zh-CN.xml` feed.
-- The site owns both feeds; they are generated from the community catalog and intentionally omit build-generated publication dates.
+- Hagilight 0.5.0 generates valid empty default, English-alias, and Simplified Chinese feeds. The RSS integration does not extract content from the community catalog.
 - `BaseLayout.astro` owns canonical URLs, descriptions, Open Graph, Twitter, and RSS discovery. English and Simplified Chinese share URLs, so the site does not emit locale alternates. The external-link warning page is `noindex` and excluded from the sitemap.
 
 ## Detail page presentation
