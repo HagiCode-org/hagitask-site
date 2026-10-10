@@ -30,11 +30,20 @@
   --sl-color-bg-nav: var(--color-surface);
   --sl-color-black: #000;
   --sl-color-gray-1: var(--color-fg);
+  --sl-color-gray-2: var(--color-muted);
   --sl-color-gray-5: var(--color-border);
   --sl-color-text: var(--color-fg);
   --sl-color-text-high: var(--color-fg);
   --sl-text-xs: 0.75rem;
   --sl-text-sm: 0.875rem;
+}
+
+.hagilight-promoto .hagilight-promoto__cta {
+  color: var(--color-on-accent);
+}
+
+html[data-theme='light'] .hagilight-promoto .hagilight-promoto__cta {
+  color: #fff;
 }
 
 .hagilight-promoto__shell {
