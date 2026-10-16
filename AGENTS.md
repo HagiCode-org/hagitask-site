@@ -51,4 +51,4 @@ node scripts/assert-sync-config.mjs   # 校验同步工作流配置
 - 页面内容使用 `--max-width`、`--content-gap`、`--color-surface` 和 `--color-border` 等共享 token；双语文案继续使用 `.locale-en` / `.locale-zh`。
 - Astro uses Hagilight's default discovery integration; the site does not define custom RSS routes or crawler policies.
 - `BaseLayout.astro` 使用 Hagilight SEO Head 生成页面级 canonical、description、Open Graph 与 Twitter 元数据；双语内容共用 URL，不要添加虚假的 locale alternates。外链警告页保留 noindex 元数据，但不配置站点级 sitemap 过滤。
-- 新增外部链接必须使用 `target="_blank"` 时同时设置 `rel="noopener noreferrer"`；推广由 Hagilight banner 管理，不要添加独立的本地 promotion mount 或 loader。
+- 新增外部链接必须使用 `target="_blank"` 时按目标分类设置 `rel`：同源或第一方（`hagicode.com`、`*.hagicode.com`、`github.com/HagiCode-org`）使用 `rel="noopener"`，**不得**使用 `noreferrer`；第三方使用 `rel="noopener noreferrer"`；同标签页链接不设置策略 `rel`。分类实现见 `src/lib/external-links.ts` 的 `isFirstPartyUrl()`，必须按解析后的 host 匹配，不要用子串匹配。详见 `docs/external-links.md`。不要修改 Referrer-Policy，也不要引入 `unsafe-url`。推广由 Hagilight banner 管理，不要添加独立的本地 promotion mount 或 loader。
