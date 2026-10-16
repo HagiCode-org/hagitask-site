@@ -27,7 +27,29 @@ test('Header exposes accessible desktop and mobile controls', () => {
   assert.match(header, /aria-controls="mobile-navigation"/);
   assert.match(header, /data-theme-toggle/);
   assert.match(header, /data-locale-toggle="en-US"/);
-  assert.match(header, /rel="noopener noreferrer"/);
+  assert.match(header, /href="https:\/\/github\.com\/HagiCode-org\/hagitask" target="_blank" rel="noopener"/);
+  assert.doesNotMatch(header, /noreferrer/);
+});
+
+test('first-party classification follows the shared link policy by parsed host', async () => {
+  const { isFirstPartyUrl } = await import('../src/lib/external-links.ts');
+  const firstParty = [
+    'https://docs.hagicode.com/blog/',
+    'https://hagicode.com/',
+    'https://WWW.HagiCode.com/en-US/desktop/',
+    'https://github.com/HagiCode-org/site/issues',
+    'https://github.com/hagicode-org/hagitask',
+  ];
+  const thirdParty = [
+    'https://hagicode.com.evil.example/',
+    'https://nothagicode.com/',
+    'https://example.com/hagicode.com',
+    'https://github.com/HagiCode-org-fake/site',
+    'https://discord.gg/qY662sJK',
+    'https://apps.microsoft.com/detail/9N3PM0N3SVDW',
+  ];
+  for (const href of firstParty) assert.equal(isFirstPartyUrl(new URL(href)), true, href);
+  for (const href of thirdParty) assert.equal(isFirstPartyUrl(new URL(href)), false, href);
 });
 
 test('shared footer uses Hagilight default links without a site-specific link configuration', () => {
@@ -78,7 +100,10 @@ test('external navigation uses one validated warning route', () => {
   assert.match(links, /url\.origin !==/);
   assert.match(warning, /Invalid destination/);
   assert.match(warning, /window\.history\.back/);
-  assert.match(warning, /noopener,noreferrer/);
+  assert.match(warning, /isFirstPartyUrl\(resolved\.url\) \? 'noopener' : 'noopener,noreferrer'/);
+  assert.match(warning, /define:vars=\{\{ target, opener \}\}/);
+  assert.match(warning, /window\.open\(target, '_blank', opener\)/);
+  assert.doesNotMatch(warning, /window\.open\(target, '_blank', 'noopener,noreferrer'\)/);
 });
 
 test('task cards and detail pages expose one navigable command catalog', () => {

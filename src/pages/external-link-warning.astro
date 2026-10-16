@@ -1,10 +1,12 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { resolveExternalLink } from '@/lib/external-links';
+import { isFirstPartyUrl, resolveExternalLink } from '@/lib/external-links';
 
 const rawTarget = Astro.url.searchParams.get('url');
 const resolved = resolveExternalLink(rawTarget, Astro.url.origin);
 const target = resolved?.isExternal ? resolved.url.toString() : null;
+// First-party destinations keep the referring origin; third-party destinations get no referrer.
+const opener = resolved && isFirstPartyUrl(resolved.url) ? 'noopener' : 'noopener,noreferrer';
 ---
 
 <BaseLayout
@@ -61,14 +63,14 @@ const target = resolved?.isExternal ? resolved.url.toString() : null;
 </BaseLayout>
 
 {target && (
-  <script is:inline define:vars={{ target }}>
+  <script is:inline define:vars={{ target, opener }}>
     const continueButton = document.querySelector('[data-warning-continue]');
     const cancelButton = document.querySelector('[data-warning-cancel]');
     const opensNewWindow = new URLSearchParams(window.location.search).get('window') === 'new';
 
     continueButton?.addEventListener('click', () => {
       if (opensNewWindow) {
-        const opened = window.open(target, '_blank', 'noopener,noreferrer');
+        const opened = window.open(target, '_blank', opener);
         if (opened) window.close();
         else window.location.assign(target);
       } else {
