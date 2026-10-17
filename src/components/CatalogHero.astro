@@ -1,0 +1,863 @@
+---
+import type { DetailDoc, IndexEntry } from '@/lib/community-index';
+
+interface Props {
+  tasks: IndexEntry[];
+  details: DetailDoc[];
+  contributionGuideUrl: string;
+  schemaReferenceUrl: string;
+}
+
+const { tasks, details, contributionGuideUrl, schemaReferenceUrl } = Astro.props;
+
+// Every value shown on the verification sheet comes from the published catalog.
+// Nothing here is illustrative: the digest is the one in /index.json, and the
+// browser re-computes it from the real /packages/<taskId>.zip at runtime.
+const samples = tasks.map((task) => {
+  const detail = details.find((d) => d.taskId === task.taskId);
+  const r = detail?.resources;
+  const files = r ? [r.manifest, r.backend, r.frontend, ...r.locales, ...r.storePage] : ['manifest.json'];
+  const en = task.name['en-US'] ?? Object.values(task.name)[0] ?? task.taskId;
+  return {
+    id: task.taskId,
+    nameEn: en,
+    nameZh: task.name['zh-CN'] ?? en,
+    version: task.version,
+    size: detail?.installation.size ?? 0,
+    agent: task.compatibility.agent,
+    skills: task.compatibility.skills,
+    files,
+    sha256: task.integrity.sha256,
+    packageUrl: task.packageUrl,
+    detailHref: `/tasks/${task.taskId}/`,
+  };
+});
+
+const first = samples[0];
+const sizeLabel = (bytes: number) => `${(bytes / 1024).toFixed(1)} KB`;
+const digestRows = first ? [0, 1, 2, 3].map((i) => first.sha256.slice(i * 16, i * 16 + 16)) : [];
+const safeJson = JSON.stringify(samples).replace(/</g, '\\u003c');
+---
+
+<section class="hero" aria-labelledby="page-title">
+  <div class="hero__copy">
+    <h1 class="hero__title" id="page-title">
+      <span class="locale-en">Task packages you can verify.</span>
+      <span class="locale-zh">可验证的任务包。</span>
+    </h1>
+    <p class="hero__subtitle">
+      <span class="locale-en">Discover reusable workflows for HagiCode.</span>
+      <span class="locale-zh">发现可复用的 HagiCode 工作流。</span>
+    </p>
+    <p class="hero__proof">
+      <span class="locale-en">Each package is schema-validated, archived deterministically, and published with a <span class="nb">SHA-256</span> digest you can check yourself.</span>
+      <span class="locale-zh">每个任务包都经过 Schema 校验、确定性归档，并附带可自行核对的 <span class="nb">SHA-256</span> 摘要。</span>
+    </p>
+
+    <div class="hero__actions" aria-label="Primary actions">
+      <a class="hero__btn hero__btn--primary" href="#catalog">
+        <span class="locale-en">Browse the catalog</span><span class="locale-zh">浏览任务目录</span>
+      </a>
+      <a class="hero__btn hero__btn--ghost" href={contributionGuideUrl} target="_blank" rel="noopener">
+        <span class="locale-en">Contribute a task</span><span class="locale-zh">贡献 Task</span>
+      </a>
+    </div>
+
+    <ul class="hero__links" aria-label="Resource links">
+      <li><a href="/index.json"><code>index.json</code></a></li>
+      <li>
+        <a href={schemaReferenceUrl} target="_blank" rel="noopener">
+          <span class="locale-en">Schema reference</span><span class="locale-zh">Schema 参考</span>
+        </a>
+      </li>
+      <li>
+        <a href="https://github.com/HagiCode-org/hagitask-site" target="_blank" rel="noopener">
+          <span class="locale-en">Site source</span><span class="locale-zh">站点源码</span>
+        </a>
+      </li>
+    </ul>
+
+    <span class="hero__store-badge" data-store-badge aria-label="Microsoft Store"></span>
+  </div>
+
+  {
+    first && (
+      <figure class="sheet" data-sheet data-state="published" data-phase="idle">
+        <figcaption class="sheet__bar">
+          <span class="sheet__file" data-file>{first.id}.zip</span>
+          <span class="sheet__status" data-status>
+            <svg class="sheet__status-ico" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+              <circle class="ring" cx="8" cy="8" r="6" />
+              <path class="tick" d="M4.6 8.4l2.3 2.3 4.5-4.9" />
+              <path class="cross" d="M5 5l6 6M11 5l-6 6" />
+            </svg>
+            <span data-for="verifying"><span class="locale-en">Verifying…</span><span class="locale-zh">校验中…</span></span>
+            <span data-for="verified"><span class="locale-en">SHA-256 verified</span><span class="locale-zh">SHA-256 校验通过</span></span>
+            <span data-for="mismatch"><span class="locale-en">Digest mismatch</span><span class="locale-zh">摘要不一致</span></span>
+            <span data-for="published"><span class="locale-en">Digest published</span><span class="locale-zh">摘要已发布</span></span>
+          </span>
+        </figcaption>
+
+        <div class="sheet__body">
+          <p class="sheet__title">
+            <span class="locale-en" data-name-en>{first.nameEn}</span>
+            <span class="locale-zh" data-name-zh>{first.nameZh}</span>
+          </p>
+          <p class="sheet__meta">
+            <span data-version>v{first.version}</span>
+            <span data-size>{sizeLabel(first.size)}</span>
+            <span class="sheet__agent">
+              <span><span class="locale-en">agent</span><span class="locale-zh">代理</span></span>
+              <span data-agent>{first.agent}</span>
+            </span>
+          </p>
+
+          <ul class="files" data-files>
+            {
+              first.files.map((file, i) => (
+                <li style={`--i:${i}`}>
+                  <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3.6 8.4l3 3 5.8-6.4" /></svg>
+                  <span>{file}</span>
+                </li>
+              ))
+            }
+          </ul>
+
+          <div class="digest">
+            <p class="digest__label">SHA-256</p>
+            <p class="digest__value" data-digest aria-hidden="true">
+              {digestRows.map((row) => <span class="digest__row">{`${row.slice(0, 8)} ${row.slice(8)}`}</span>)}
+            </p>
+            <span class="sr-only" data-digest-sr>{first.sha256}</span>
+          </div>
+        </div>
+
+        <div class="sheet__foot">
+          <div class="sheet__nav" role="group" aria-label="Sample package">
+            <button type="button" data-prev>
+              <span class="sr-only locale-en">Previous package</span><span class="sr-only locale-zh">上一个任务包</span>
+              <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M10 3.5L5.5 8l4.5 4.5" /></svg>
+            </button>
+            <button type="button" data-toggle aria-pressed="false">
+              <span class="sr-only locale-en">Pause automatic cycling</span><span class="sr-only locale-zh">暂停自动轮播</span>
+              <svg class="ico-pause" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5.5 3.5v9M10.5 3.5v9" /></svg>
+              <svg class="ico-play" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5.5 3.5l7 4.5-7 4.5z" /></svg>
+            </button>
+            <button type="button" data-next>
+              <span class="sr-only locale-en">Next package</span><span class="sr-only locale-zh">下一个任务包</span>
+              <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" /></svg>
+            </button>
+            <span class="sheet__count" data-count>{`1 / ${samples.length}`}</span>
+          </div>
+          <div class="sheet__links">
+            <a data-detail href={first.detailHref}>
+              <span class="locale-en">Details</span><span class="locale-zh">详情</span>
+            </a>
+            <a data-download href={first.packageUrl} download>
+              <span class="locale-en">Download .zip</span><span class="locale-zh">下载 .zip</span>
+            </a>
+          </div>
+        </div>
+        <p class="sr-only" data-live aria-live="off"></p>
+      </figure>
+    )
+  }
+
+  <script type="application/json" id="hero-samples" set:html={safeJson} />
+</section>
+
+<script>
+  type Sample = {
+    id: string; nameEn: string; nameZh: string; version: string; size: number; agent: string;
+    skills: string[]; files: string[]; sha256: string; packageUrl: string; detailHref: string;
+  };
+  type State = 'verifying' | 'verified' | 'mismatch' | 'published';
+
+  const sheet = document.querySelector<HTMLElement>('[data-sheet]');
+  const raw = document.getElementById('hero-samples')?.textContent;
+  const samples: Sample[] = raw ? JSON.parse(raw) : [];
+
+  if (sheet && samples.length > 0) {
+    const root: HTMLElement = sheet;
+    const $ = <T extends HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
+    const el = {
+      file: $('[data-file]'), nameEn: $('[data-name-en]'), nameZh: $('[data-name-zh]'),
+      version: $('[data-version]'), size: $('[data-size]'), agent: $('[data-agent]'),
+      files: $('[data-files]'), digest: $('[data-digest]'), digestSr: $('[data-digest-sr]'),
+      count: $('[data-count]'), detail: $<HTMLAnchorElement>('[data-detail]'),
+      download: $<HTMLAnchorElement>('[data-download]'), live: $('[data-live]'),
+      prev: $('[data-prev]'), next: $('[data-next]'), toggle: $('[data-toggle]'),
+    };
+
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    const HEX = '0123456789abcdef';
+    const SCRAMBLE_MIN = 380;   // ms the digest churns before a result may lock in
+    const LOCK_STEP = 11;       // ms between characters locking, left to right
+    const HOLD = 4600;          // ms a verified sheet stays before the next package
+    const CHECK = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3.6 8.4l3 3 5.8-6.4" /></svg>';
+
+    // 64 per-character spans, built once, so a settled character can be styled apart from a churning one.
+    const chars: HTMLSpanElement[] = [];
+    el.digest.textContent = '';
+    for (let row = 0; row < 4; row++) {
+      const line = document.createElement('span');
+      line.className = 'digest__row';
+      for (let c = 0; c < 16; c++) {
+        if (c === 8) line.append(' ');
+        const ch = document.createElement('span');
+        ch.textContent = samples[0].sha256[row * 16 + c];
+        line.append(ch);
+        chars.push(ch);
+      }
+      el.digest.append(line);
+    }
+
+    let index = 0;
+    let run = 0;                 // incremented per swap; stale async work compares against it
+    let userPaused = false;
+    let hovered = false;
+    let visible = true;
+    let held = 0;
+    let phase: 'running' | 'hold' = 'hold';
+    const cache = new Map<string, Promise<string | null>>();
+
+    const setState = (state: State) => { root.dataset.state = state; };
+
+    const computeDigest = (s: Sample): Promise<string | null> => {
+      let p = cache.get(s.id);
+      if (!p) {
+        p = (async () => {
+          if (!crypto?.subtle) return null;
+          const res = await fetch(s.packageUrl, { cache: 'force-cache' });
+          if (!res.ok) return null;
+          const buf = await crypto.subtle.digest('SHA-256', await res.arrayBuffer());
+          return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('');
+        })().catch(() => null);
+        cache.set(s.id, p);
+      }
+      return p;
+    };
+
+    const paint = (text: string, locked: number) => {
+      for (let i = 0; i < 64; i++) {
+        const ch = chars[i];
+        const isLocked = i < locked;
+        const next = isLocked ? text[i] : HEX[(Math.random() * 16) | 0];
+        if (ch.textContent !== next) ch.textContent = next;
+        ch.classList.toggle('is-locked', isLocked);
+      }
+    };
+
+    const frame = () => new Promise<number>((r) => requestAnimationFrame(r));
+
+    const renderMeta = (s: Sample) => {
+      el.file.textContent = `${s.id}.zip`;
+      el.nameEn.textContent = s.nameEn;
+      el.nameZh.textContent = s.nameZh;
+      el.version.textContent = `v${s.version}`;
+      el.size.textContent = `${(s.size / 1024).toFixed(1)} KB`;
+      el.agent.textContent = s.agent;
+      el.count.textContent = `${index + 1} / ${samples.length}`;
+      el.detail.href = s.detailHref;
+      el.download.href = s.packageUrl;
+      el.files.textContent = '';
+      s.files.forEach((file, i) => {
+        const li = document.createElement('li');
+        li.style.setProperty('--i', String(i));
+        li.innerHTML = CHECK;
+        const span = document.createElement('span');
+        span.textContent = file;
+        li.append(span);
+        el.files.append(li);
+      });
+      el.digestSr.textContent = s.sha256;
+    };
+
+    async function show(i: number, announce = false) {
+      const my = ++run;
+      index = (i + samples.length) % samples.length;
+      const s = samples[index];
+      phase = 'running';
+      held = 0;
+
+      renderMeta(s);
+      const motion = !reduced.matches;
+
+      if (!motion) {
+        paint(s.sha256, 0);
+        const computed = await computeDigest(s);
+        if (my !== run) return;
+        paint(computed ?? s.sha256, 64);
+        setState(computed === null ? 'published' : computed === s.sha256 ? 'verified' : 'mismatch');
+        root.dataset.phase = 'done';
+        phase = 'hold';
+        if (announce) say(s, computed);
+        return;
+      }
+
+      // reset rows without transition, force a reflow, then let them tick in
+      root.dataset.phase = 'reset';
+      void root.offsetWidth;
+      root.dataset.phase = 'run';
+      setState('verifying');
+
+      const started = performance.now();
+      let result: string | null | undefined;
+      computeDigest(s).then((r) => { if (my === run) result = r; });
+
+      // churn until a result exists and the minimum churn time has passed (4 s cap)
+      while (my === run) {
+        const now = await frame();
+        if (my !== run) return;
+        const elapsed = now - started;
+        paint(s.sha256, 0);
+        if ((result !== undefined && elapsed > SCRAMBLE_MIN) || elapsed > 4000) break;
+      }
+      if (my !== run) return;
+
+      const target = result ?? s.sha256;
+      const lockStart = performance.now();
+      while (my === run) {
+        const now = await frame();
+        if (my !== run) return;
+        const locked = Math.min(64, Math.floor((now - lockStart) / LOCK_STEP) + 1);
+        paint(target, locked);
+        if (locked >= 64) break;
+      }
+      if (my !== run) return;
+
+      const state: State = result == null ? 'published' : result === s.sha256 ? 'verified' : 'mismatch';
+      setState(state);
+      root.dataset.phase = 'done';
+      phase = 'hold';
+      if (announce) say(s, result ?? null);
+    }
+
+    function say(s: Sample, computed: string | null) {
+      const zh = document.documentElement.dataset.locale === 'zh-CN';
+      const ok = computed === s.sha256;
+      el.live.setAttribute('aria-live', 'polite');
+      el.live.textContent = zh
+        ? `${s.nameZh} ${s.version}：${computed === null ? 'SHA-256 摘要已发布' : ok ? 'SHA-256 校验通过' : 'SHA-256 摘要不一致'}`
+        : `${s.nameEn} ${s.version}: ${computed === null ? 'SHA-256 digest published' : ok ? 'SHA-256 verified' : 'SHA-256 digest mismatch'}`;
+    }
+
+    const canAdvance = () => !userPaused && !hovered && visible && !document.hidden && !reduced.matches;
+
+    el.next.addEventListener('click', () => show(index + 1, true));
+    el.prev.addEventListener('click', () => show(index - 1, true));
+    el.toggle.addEventListener('click', () => {
+      userPaused = !userPaused;
+      el.toggle.setAttribute('aria-pressed', String(userPaused));
+    });
+
+    root.addEventListener('pointerenter', () => { hovered = true; });
+    root.addEventListener('pointerleave', () => { hovered = false; });
+    root.addEventListener('focusin', () => { hovered = true; });
+    root.addEventListener('focusout', () => { hovered = false; });
+    new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { threshold: 0.25 }).observe(root);
+
+    // 250 ms heartbeat: the hold clock only advances while nothing is asking for stillness.
+    setInterval(() => {
+      if (phase !== 'hold' || !canAdvance()) return;
+      held += 250;
+      if (held >= HOLD) show(index + 1);
+    }, 250);
+
+    // first run starts once the sheet is actually on screen
+    const boot = new IntersectionObserver((entries, obs) => {
+      if (entries.some((e) => e.isIntersecting)) { obs.disconnect(); show(0); }
+    }, { threshold: 0.25 });
+    boot.observe(root);
+  }
+</script>
+
+<style>
+  .hero {
+    --font-mono: ui-monospace, 'SFMono-Regular', 'JetBrains Mono', Menlo, Consolas, monospace;
+    display: grid;
+    grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+    gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: center;
+    padding: clamp(1.5rem, 4vw, 3.5rem) 0 clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .hero ::selection {
+    background: var(--color-accent-surface);
+    color: var(--color-on-accent);
+  }
+
+  .hero__title {
+    margin: 0;
+    max-width: 14ch;
+    font-size: clamp(2.5rem, 5.6vw, 4.75rem);
+    font-weight: 800;
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  :global(html[data-locale='zh-CN']) .hero__title {
+    max-width: none;
+    letter-spacing: 0;
+    line-height: 1.15;
+  }
+
+  .hero__subtitle {
+    margin: 1.5rem 0 0;
+    font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+    font-weight: 600;
+    color: var(--color-fg);
+  }
+
+  .hero__proof {
+    margin: 0.75rem 0 0;
+    max-width: 34rem;
+    color: var(--color-muted);
+    text-wrap: pretty;
+  }
+
+  .nb {
+    white-space: nowrap;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .hero__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.9rem;
+    padding: 0.7rem 1.35rem;
+    border-radius: 4px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1), border-color 150ms, background-color 150ms;
+  }
+
+  .hero__btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .hero__btn--primary {
+    background: var(--color-accent-surface);
+    color: var(--color-on-accent);
+  }
+
+  .hero__btn--ghost {
+    border: 1px solid var(--color-border);
+    color: var(--color-fg);
+  }
+
+  .hero__btn--ghost:hover {
+    border-color: var(--color-muted);
+  }
+
+  .hero__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.5rem;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.9rem;
+  }
+
+  .hero__links a {
+    color: var(--color-muted);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--color-muted) 40%, transparent);
+    text-underline-offset: 0.25em;
+  }
+
+  .hero__links a:hover {
+    color: var(--color-fg);
+    text-decoration-color: currentColor;
+  }
+
+  .hero__links code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+  }
+
+  /* Microsoft Store badge is injected by an external script as a fixed-width <a><img>.
+     Constrain it so it can never exceed the viewport, especially on mobile. */
+  .hero__store-badge {
+    display: inline-flex;
+    margin-top: 1.5rem;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .hero__store-badge :global(a),
+  .hero__store-badge :global(img) {
+    display: block;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    border: 0;
+  }
+
+  /* ───────── verification sheet ───────── */
+
+  .sheet {
+    --mono: var(--font-mono);
+    margin: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-surface);
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .sheet__bar,
+  .sheet__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.8rem 1.25rem;
+  }
+
+  .sheet__bar {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .sheet__foot {
+    flex-wrap: wrap;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .sheet__file {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--color-muted);
+  }
+
+  .sheet__status {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-muted);
+    transition: color 200ms;
+  }
+
+  .sheet[data-state='verified'] .sheet__status {
+    color: var(--color-accent);
+  }
+
+  .sheet[data-state='mismatch'] .sheet__status {
+    color: #ff6b6b;
+  }
+
+  :global(html[data-theme='light']) .sheet[data-state='mismatch'] .sheet__status {
+    color: #b42318;
+  }
+
+  .sheet__status [data-for] {
+    display: none;
+  }
+
+  .sheet[data-state='verifying'] [data-for='verifying'],
+  .sheet[data-state='verified'] [data-for='verified'],
+  .sheet[data-state='mismatch'] [data-for='mismatch'],
+  .sheet[data-state='published'] [data-for='published'] {
+    display: inline;
+  }
+
+  .sheet__status-ico {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .sheet__status-ico .tick,
+  .sheet__status-ico .cross {
+    opacity: 0;
+  }
+
+  .sheet[data-state='verified'] .sheet__status-ico .tick,
+  .sheet[data-state='mismatch'] .sheet__status-ico .cross {
+    opacity: 1;
+  }
+
+  .sheet[data-state='verifying'] .sheet__status-ico .ring {
+    stroke-dasharray: 9 29;
+    transform-origin: 8px 8px;
+    animation: ring-spin 900ms linear infinite;
+  }
+
+  .sheet[data-state='published'] .sheet__status-ico .ring {
+    opacity: 0.45;
+  }
+
+  @keyframes ring-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .sheet__body {
+    padding: 1.5rem 1.25rem 1.35rem;
+  }
+
+  .sheet__title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+
+  .sheet__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+    margin: 0.5rem 0 0;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--color-muted);
+  }
+
+  .sheet__agent {
+    display: inline-flex;
+    gap: 0.45rem;
+  }
+
+  .files {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: column;
+    grid-template-rows: repeat(4, auto);
+    gap: 0.4rem 1.25rem;
+    margin: 1.25rem 0 0;
+    padding: 1.1rem 0 0;
+    border-top: 1px solid var(--color-border);
+    list-style: none;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--color-fg);
+  }
+
+  .files :global(li) {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  .files :global(li span) {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .files :global(svg) {
+    flex: none;
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 16;
+    stroke-dashoffset: 0;
+  }
+
+  /* rows tick in one after another while the package is being checked */
+  .sheet[data-phase='reset'] .files :global(li) {
+    opacity: 0.25;
+    transition: none;
+  }
+
+  .sheet[data-phase='reset'] .files :global(svg) {
+    stroke-dashoffset: 16;
+    transition: none;
+  }
+
+  .sheet[data-phase='run'] .files :global(li),
+  .sheet[data-phase='done'] .files :global(li) {
+    opacity: 1;
+    transition: opacity 260ms cubic-bezier(0.22, 1, 0.36, 1) calc(var(--i) * 70ms);
+  }
+
+  .sheet[data-phase='run'] .files :global(svg),
+  .sheet[data-phase='done'] .files :global(svg) {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 340ms cubic-bezier(0.22, 1, 0.36, 1) calc(var(--i) * 70ms);
+  }
+
+  .digest {
+    margin-top: 1.25rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: var(--color-bg);
+  }
+
+  .digest__label {
+    margin: 0 0 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--color-muted);
+  }
+
+  .digest__value {
+    display: grid;
+    gap: 0.2rem;
+    margin: 0;
+    font-family: var(--mono);
+    font-size: clamp(0.8rem, 1.25vw, 0.95rem);
+    line-height: 1.4;
+    font-variant-numeric: tabular-nums;
+    white-space: pre;
+    overflow: hidden;
+  }
+
+  .digest__row {
+    display: block;
+  }
+
+  .digest__value :global(span span) {
+    color: color-mix(in srgb, var(--color-muted) 70%, transparent);
+    transition: color 120ms;
+  }
+
+  .digest__value :global(span span.is-locked),
+  .sheet[data-phase='idle'] .digest__value :global(span span),
+  .sheet[data-phase='done'] .digest__value :global(span span) {
+    color: var(--color-fg);
+  }
+
+  .sheet__nav {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .sheet__nav button {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: color 150ms, border-color 150ms;
+  }
+
+  .sheet__nav button:hover {
+    color: var(--color-fg);
+    border-color: var(--color-muted);
+  }
+
+  .sheet__nav svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .sheet__nav .ico-play {
+    display: none;
+    fill: currentColor;
+  }
+
+  .sheet__nav [aria-pressed='true'] .ico-pause {
+    display: none;
+  }
+
+  .sheet__nav [aria-pressed='true'] .ico-play {
+    display: block;
+  }
+
+  .sheet__count {
+    margin-left: 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-muted);
+  }
+
+  .sheet__links {
+    display: flex;
+    gap: 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .sheet__links a {
+    color: var(--color-fg);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--color-fg) 35%, transparent);
+    text-underline-offset: 0.25em;
+  }
+
+  .sheet__links a:hover {
+    color: var(--color-accent);
+    text-decoration-color: currentColor;
+  }
+
+  @media (max-width: 960px) {
+    .hero {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hero__title {
+      max-width: 16ch;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .hero__actions {
+      flex-direction: column;
+    }
+
+    .hero__btn {
+      width: 100%;
+    }
+
+    .sheet__bar,
+    .sheet__foot,
+    .sheet__body {
+      padding-inline: 1rem;
+    }
+
+    .files {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: none;
+      grid-auto-flow: row;
+    }
+
+    .digest__value {
+      font-size: 0.78rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sheet[data-state='verifying'] .sheet__status-ico .ring {
+      animation: none;
+    }
+
+    .hero__btn:hover {
+      transform: none;
+    }
+  }
+</style>

@@ -1,9 +1,10 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TaskCard from '@/components/TaskCard.astro';
+import CatalogHero from '@/components/CatalogHero.astro';
 import { getCatalog, SOURCE_ROOT } from '@/lib/community-index';
 
-const { index } = getCatalog();
+const { index, details } = getCatalog();
 const tasks = index.tasks;
 const categories = Array.from(new Set(tasks.map((t) => t.category))).sort();
 const contributionGuideUrl = `${SOURCE_ROOT}#contribute-a-task`;
@@ -15,32 +16,14 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
   description="Browse reusable HagiCode community tasks, workflows, and integrations."
 >
   <main class="page">
-    <section class="hero" aria-labelledby="page-title">
-      <p class="hero__eyebrow">HagiCode · Community Tasks</p>
-      <h1 class="hero__title" id="page-title">
-        <span class="locale-en">HagiTask Community</span>
-        <span class="locale-zh">HagiTask 社区任务</span>
-      </h1>
-      <p class="hero__subtitle">
-        <span class="locale-en">Discover reusable workflows for HagiCode.</span>
-        <span class="locale-zh">发现可复用的 HagiCode 工作流。</span>
-      </p>
-      <div class="hero__actions" aria-label="Resource links">
-        <a class="hero__btn hero__btn--primary" href="/index.json">index.json</a>
-        <a class="hero__btn hero__btn--ghost" href={contributionGuideUrl} target="_blank" rel="noopener noreferrer">
-          <span class="locale-en">Contribute a task</span><span class="locale-zh">贡献 Task</span>
-        </a>
-        <a class="hero__btn hero__btn--ghost" href={schemaReferenceUrl} target="_blank" rel="noopener noreferrer">
-          <span class="locale-en">Schema reference</span><span class="locale-zh">Schema 参考</span>
-        </a>
-        <a class="hero__btn hero__btn--ghost" href="https://github.com/HagiCode-org/hagitask-site" target="_blank" rel="noopener noreferrer">
-          <span class="locale-en">Site source</span><span class="locale-zh">站点源码</span>
-        </a>
-        <span class="hero__store-badge" data-store-badge aria-label="Microsoft Store"></span>
-      </div>
-    </section>
+    <CatalogHero
+      tasks={tasks}
+      details={details}
+      contributionGuideUrl={contributionGuideUrl}
+      schemaReferenceUrl={schemaReferenceUrl}
+    />
 
-    <section class="toolbar" aria-labelledby="catalog-heading">
+    <section class="toolbar" id="catalog" aria-labelledby="catalog-heading">
       <div class="toolbar__heading">
         <p class="section-label" id="catalog-heading"><span class="locale-en">Task catalog</span><span class="locale-zh">任务目录</span></p>
         <span class="toolbar__count" id="task-count">{tasks.length} tasks</span>
@@ -122,96 +105,15 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
     padding: 3.5rem 1.25rem 5rem;
   }
 
-  .hero {
-    text-align: center;
-    padding: 4rem 1rem 5rem;
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    background:
-      radial-gradient(60% 60% at 50% 0%, rgba(250, 255, 105, 0.14), transparent 70%);
-  }
-
-  .hero__eyebrow {
-    margin: 0 0 1rem;
-    color: var(--color-accent);
-    font-size: 0.875rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .hero__title {
-    margin: 0;
-    font-size: clamp(2rem, 5vw, 3.25rem);
-    font-weight: 900;
-    letter-spacing: -0.06em;
-  }
-
-  .hero__subtitle {
-    margin: 1rem auto 1.75rem;
-    max-width: 38rem;
-    color: var(--color-muted);
-  }
-
-  .hero__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-    align-items: center;
-    max-width: 100%;
-  }
-
-  .hero__btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.7rem 1.25rem;
-    border-radius: 4px;
-    font-weight: 600;
-    text-decoration: none;
-    max-width: 100%;
-    overflow-wrap: anywhere;
-  }
-
-  .hero__btn--primary {
-    background: var(--color-accent-surface);
-    color: var(--color-on-accent);
-  }
-
-  .hero__btn--ghost {
-    border: 1px solid var(--color-border);
-    color: var(--color-fg);
-  }
-
-  /* Microsoft Store badge is injected by Microsoft's script as a fixed-width <a><img>.
-     Constrain it so it can never exceed the viewport width, especially on mobile. */
-  .hero__store-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    max-width: 100%;
-    min-width: 0;
-  }
-
-  .hero__store-badge > a,
-  .hero__store-badge > img,
-  .hero__store-badge img {
-    display: block;
-    max-width: 100%;
-    width: auto;
-    height: auto;
-    border: 0;
-  }
-
-
   .toolbar {
     display: grid;
     grid-template-columns: minmax(12rem, .6fr) minmax(24rem, 2fr);
     flex-wrap: wrap;
     gap: 1rem;
     align-items: center;
-    margin: 3rem 0 1.5rem;
+    margin: 1rem 0 1.5rem;
     padding: 1rem;
+    scroll-margin-top: calc(var(--header-height) + 1.5rem);
     border: 1px solid var(--color-border);
     background: var(--color-surface);
   }
@@ -272,13 +174,6 @@ const schemaReferenceUrl = 'https://github.com/HagiCode-org/hagitask/tree/main/s
 
   @media (max-width: 700px) {
     .page { padding-inline: .75rem; }
-    .hero { padding: 3rem 1rem; }
-    .hero__actions { width: 100%; }
-    .hero__btn { flex: 1 1 auto; min-width: 0; }
-    .hero__actions img { max-width: 100%; height: auto; }
-    .hero__store-badge { flex: 0 0 auto; width: 100%; }
-    .hero__store-badge > a,
-    .hero__store-badge > img { margin: 0 auto; }
     .toolbar { grid-template-columns: 1fr; }
     .toolbar__filters { grid-column: 1; }
   }
