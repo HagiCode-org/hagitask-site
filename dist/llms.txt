@@ -1,0 +1,20 @@
+# HagiTask · Community Tasks
+
+> Browse reusable HagiCode community tasks, workflows, and integrations.
+
+## Overview
+
+- [HagiTask · Community Tasks](https://tasks.hagicode.com/): Browse reusable HagiCode community tasks, workflows, and integrations.
+
+## Tasks
+
+- [Add Community Task · HagiTask](https://tasks.hagicode.com/tasks/add-community-task/): Collect one complete Community Task brief, structure it with the prompt, generate every required package file, validate it for real, and open a pull request from your own GitHub fork.
+- [AGENTS.md Update · HagiTask](https://tasks.hagicode.com/tasks/agents-md-update/): A structured documentation-maintenance task preset that updates only AGENTS.md with explicit project selection and MonoSpecs-aware repository scope, leaving CLAUDE.md untouched.
+- [CodeGraph Tasks · HagiTask](https://tasks.hagicode.com/tasks/codegraph-tasks/): Run localized CodeGraph lifecycle and graph-backed architecture tasks across eligible repositories.
+- [GitHub Tasks · HagiTask](https://tasks.hagicode.com/tasks/github-tasks/): Run focused GitHub management commands through gh CLI without persistent local artifacts.
+- [Goal · HagiTask](https://tasks.hagicode.com/tasks/goal/): A bundled sustained-work preset that routes work through `/goal` and limits execution to compatible Claude and Codex heroes.
+- [HagiCode MonoSpecs Operations · HagiTask](https://tasks.hagicode.com/tasks/hagicode-monospecs-operations/): Initialize MonoSpecs configuration, batch-add repositories, and reorder repositories by observable activity through a structured task.
+- [last30days · HagiTask](https://tasks.hagicode.com/tasks/last30days/): A structured research task preset that maps shared preset-task input into a mode-aware `last30days` workflow with explicit repository scope.
+- [OpenSpec Spec Compress · HagiTask](https://tasks.hagicode.com/tasks/openspec-spec-compress/): A bundled OpenSpec maintenance preset that turns the documented spec-compression workflow into a reusable, non-interactive task entry.
+- [Ponytail · HagiTask](https://tasks.hagicode.com/tasks/ponytail/): A structured task preset that routes work through the Ponytail efficiency ladder and its focused review, audit, debt, and help commands.
+- [UI Master · HagiTask](https://tasks.hagicode.com/tasks/ui-master/): A structured UI task preset that combines command-guided intent, repository scope, and scene-aware dispatch for focused interface work.
