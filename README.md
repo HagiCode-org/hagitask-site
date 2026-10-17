@@ -1,5 +1,8 @@
 # hagitask-site
 
+[![last commit](https://img.shields.io/github/last-commit/HagiCode-org/hagitask-site)](https://github.com/HagiCode-org/hagitask-site/commits/main)
+[![website](https://img.shields.io/website?url=https%3A%2F%2Ftasks.hagicode.com&label=website)](https://tasks.hagicode.com)
+
 HagiTask Site is the frontend site for task and workflow management within the HagiCode ecosystem.
 
 Visit the site: https://tasks.hagicode.com/
