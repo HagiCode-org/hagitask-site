@@ -124,6 +124,7 @@ jobs:
         with:
           name: hagitask-site-gh-pages-payload
           path: ${{ env.HAGITASK_GH_PAGES_PAYLOAD_DIR }}
+          include-hidden-files: true
           if-no-files-found: error
 
   deploy:
