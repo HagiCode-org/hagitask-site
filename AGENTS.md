@@ -23,8 +23,14 @@ npm run build      # 构建到 dist/（从 HAGITASK_COMMUNITY_SOURCE_DIR 或本�
 npm run preview    # 预览
 npm run typecheck  # astro check
 npm run verify     # 校验发布产物（index/detail Schema、ZIP 摘要、URL 稳定性）
+npm run stage:schemas  # 把 @hagicode/hagitask 的 Schema 复制到 dist/schemas/
+npm test           # node --test "test/**/*.test.mjs"
 node scripts/assert-sync-config.mjs   # 校验同步工作流配置
 ```
+
+- 运行环境：Node.js 24+（`engines`，deploy 工作流使用 Node 24）。
+- 发布由 `.github/workflows/deploy-gh-pages.yml` 完成：build → `stage:schemas` → `verify` → 发布 gh-pages；本地改动应能通过同一序列。
+- 设计与产品上下文见根目录 `PRODUCT.md` 与 `DESIGN.md`；首页主视觉为 `src/components/CatalogHero.astro`。
 
 ## 社区内容来源
 
