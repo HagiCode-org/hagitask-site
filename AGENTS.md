@@ -29,7 +29,7 @@ node scripts/assert-sync-config.mjs   # 校验同步工作流配置
 ```
 
 - 运行环境：Node.js 24+（`engines`，deploy 工作流使用 Node 24）。
-- 发布由 `.github/workflows/deploy-gh-pages.yml` 完成：build → `stage:schemas` → `verify` → 发布 gh-pages；本地改动应能通过同一序列。
+- 发布由 `.github/workflows/deploy-gh-pages.yml` 完成：build → `stage:schemas` → `verify` → 发布 gh-pages；本地改动应能通过同一序列。发布载荷由 `.github/gh-pages/`（`esa.jsonc`、`wrangler.jsonc`）加 `dist/` 组装为 artifact（含隐藏文件）后推送到 gh-pages 分支根目录。
 - 设计与产品上下文见根目录 `PRODUCT.md` 与 `DESIGN.md`；首页主视觉为 `src/components/CatalogHero.astro`。
 
 ## 社区内容来源
@@ -42,7 +42,7 @@ node scripts/assert-sync-config.mjs   # 校验同步工作流配置
 ## Schema 发布
 
 - 站点把 HagiTask 的 9 份权威 Schema 发布到 `/schemas/**`，公开根地址为 `https://tasks.hagicode.com/schemas/`，路径与源码目录一一对应。
-- 发布来源由 deploy 工作流在构建阶段 `shallow clone` 精确 Community commit 到 runner 临时目录并暴露 `HAGITASK_COMMUNITY_SOURCE_DIR`；Schema 从已安装的 `@hagicode/hagitask@0.1.2` 经 `npm run stage:schemas` 复制到 `dist/schemas/`。HagiTask/Community 不是本仓库的子模块。
+- 发布来源由 deploy 工作流在构建阶段 `shallow clone` 精确 Community commit 到 runner 临时目录并暴露 `HAGITASK_COMMUNITY_SOURCE_DIR`；Schema 从已安装的 `@hagicode/hagitask@0.1.2` 经 `npm run stage:schemas` 复制到 `dist/schemas/`。
 - 不要把 Schema 复制进站点源码；`scripts/schema-payload.mjs` 的 `EXPECTED_SCHEMA_PATHS` 是发布契约，新增或删除权威 Schema 时同步更新它和 `test/schema-payload.test.mjs`。
 
 ## 注意事项
