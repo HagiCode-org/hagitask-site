@@ -1,7 +1,8 @@
 ---
-import AnalyticsScripts from '@/components/AnalyticsScripts.astro';
 import Header from '@/components/Header.astro';
+import Analytics51LA from '@hagicode/hagilight-core/Analytics51LA';
 import Footer from '@hagicode/hagilight-core/Footer';
+import GoogleAnalytics from '@hagicode/hagilight-core/GoogleAnalytics';
 import PromotoBanner from '@hagicode/hagilight-core/PromotoBanner';
 import SEOHead from '@hagicode/hagilight/SEOHead';
 import '@/styles/site-shell.css';
@@ -24,7 +25,6 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin)
     <SEOHead
       site={Astro.site}
       page={{ url: canonicalUrl, title, description }}
-      head={[{ tag: 'meta', attrs: { name: 'description', content: description } }]}
     />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <script is:inline>
@@ -44,7 +44,8 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin)
         root.dataset.theme = theme;
       })();
     </script>
-    <AnalyticsScripts />
+    <Analytics51LA siteId="L6b88a5yK4h2Xnci" />
+    <GoogleAnalytics measurementId="G-EN03FMT2Q4" />
   </head>
   <body>
     <Header />

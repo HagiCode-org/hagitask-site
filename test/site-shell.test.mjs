@@ -57,7 +57,7 @@ test('shared footer uses Hagilight default links without a site-specific link co
   assert.match(layout, /import Footer from '@hagicode\/hagilight-core\/Footer'/);
   assert.match(layout, /<Footer locale="en-US" \/>/);
   assert.match(layout, /<Footer locale="zh-CN" \/>/);
-  assert.doesNotMatch(layout, /extraLinks|overrides|removeLinks|siteId/);
+  assert.doesNotMatch(layout, /extraLinks|overrides|removeLinks|<Footer[^>]*siteId/);
   assert.equal(fs.existsSync(path.join(root, 'src/config/hagilight-footer.ts')), false);
 });
 
@@ -76,7 +76,7 @@ test('HTML layout uses shared SEO without site-specific RSS configuration', () =
   const detail = read('pages/tasks/[taskId]/index.astro');
   const config = read('../astro.config.mjs');
   assert.match(layout, /@hagicode\/hagilight\/SEOHead/);
-  assert.match(layout, /name: 'description'/);
+  assert.match(layout, /page=\{\{ url: canonicalUrl, title, description \}\}/);
   assert.doesNotMatch(layout, /application\/rss\+xml|rssFeedUrl|rssLocaleFeedUrl/);
   assert.match(layout, /canonicalUrl/);
   assert.doesNotMatch(layout, /hreflang/);
