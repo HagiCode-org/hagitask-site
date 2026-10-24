@@ -7,6 +7,12 @@ HagiTask Site is the frontend site for task and workflow management within the H
 
 Visit the site: https://tasks.hagicode.com/
 
+## What you can do
+
+- Browse the catalog of reusable HagiCode task packages and workflow presets, in English or Simplified Chinese.
+- Open a detail page for each task to read its store page and see its commands.
+- Download a task package as a `.zip` file.
+
 ## HagiTask guides
 
 - [HagiTask introduction](https://docs.hagicode.com/guides/hagitask/introduction/)
@@ -18,17 +24,3 @@ Visit the site: https://tasks.hagicode.com/
 
 - Community packages source: `hagitask-community-packages` (`https://github.com/HagiCode-org/hagitask-community-packages`)
 - Backend service: `hagitask` (`https://github.com/HagiCode-org/hagitask`)
-- Site conventions reference: `repos/site`
-
-## Shared shell, feed, and SEO
-
-- `@hagicode/hagilight` provides the shared footer with its default links, promotion banner, RSS renderer, and SEO head. The footer's built-in RSS links target `/rss.xml` and the Simplified Chinese `/rss.zh-CN.xml` feed.
-- Hagilight 0.5.0 generates valid empty default, English-alias, and Simplified Chinese feeds. The RSS integration does not extract content from the community catalog.
-- `BaseLayout.astro` owns canonical URLs, descriptions, Open Graph, Twitter, and RSS discovery. English and Simplified Chinese share URLs, so the site does not emit locale alternates. The external-link warning page is `noindex` and excluded from the sitemap.
-
-## Detail page presentation
-
-The command catalog, prompt context, and localized `store-page` Markdown used by task
-detail pages are build-time presentation data. They are read from each community
-package but are intentionally kept outside the published `DetailDoc`; the existing
-JSON schema, package URLs, and integrity fields remain unchanged.
