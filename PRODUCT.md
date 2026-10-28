@@ -31,7 +31,7 @@ HagiTask 是 HagiCode 生态下、面向"可复用任务包"的公开双语（en
 - 站点是静态前端；后端业务逻辑与 API 在独立仓库 `repos/hagitask`。
 - 构建从 `HAGITASK_COMMUNITY_SOURCE_DIR` 指向的 Community checkout 读取任务包，未设置时回退到本地 `community-packages/` 目录；构建前使用锁定的 `@hagicode/hagitask@0.1.2` CLI 验证包源并提供权威 Schema。
 - 站点通过 `Sync Community Content` 工作流（定时 + 手动）将 `community-packages` 子模块指针更新到 Community `main`，随后触发既有 `HagiTask Site Deploy gh-pages` 重建发布；同步只移动子模块指针，不复制或改写社区内容。
-- 社区包的提交前校验在 Community 仓库内完成（`validate-packages` required check，`npm run validate`）；站点构建期（`src/lib/community-index.ts` 的 `assertValid`）是发布前第二道防线。
+- 社区包的提交前校验在 Community 仓库内完成（`validate-packages` required check，`pnpm run validate`）；站点构建期（`src/lib/community-index.ts` 的 `assertValid`）是发布前第二道防线。
 - 产物：`/index.json`、`/tasks/<taskId>.json`、`/packages/<taskId>.zip`。
 - 规范任务 ID（canonical）：`ui-master`、`claude-md-update`、`last30days`、`ponytail`、`goal`、`openspec-spec-compress`。`agentsmd` / `portytail` 仅为面向用户的别名，非规范 ID。
 - 本地化：默认 `en-US`，支持 `en-US` + `zh-CN`；要求双语结构对齐（locale parity）。
