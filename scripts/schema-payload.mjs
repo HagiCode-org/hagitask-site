@@ -47,7 +47,7 @@ export function stageSchemas(sourceDir, distDir) {
     );
   }
   if (!existsSync(distDir)) {
-    throw new Error(`Build output not found at ${distDir}. Run \`npm run build\` first.`);
+    throw new Error(`Build output not found at ${distDir}. Run \`pnpm run build\` first.`);
   }
   const target = join(distDir, 'schemas');
   rmSync(target, { recursive: true, force: true });

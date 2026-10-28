@@ -28,7 +28,7 @@ function ok(msg) {
 }
 
 if (!existsSync(DIST)) {
-  fail(`dist/ not found at ${DIST}. Run \`npm run build\` first.`);
+  fail(`dist/ not found at ${DIST}. Run \`pnpm run build\` first.`);
   process.exit(1);
 }
 

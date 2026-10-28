@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "packageManager": "npm@10.9.7",
+  "packageManager": "pnpm@12.16.1",
   "scripts": {
     "dev": "astro dev --host 0.0.0.0 --port ${PORT_WEBSITE:-43210}",
     "start": "astro dev --host 0.0.0.0",
@@ -15,7 +15,9 @@
     "stage:schemas": "node scripts/schema-payload.mjs",
     "verify": "node scripts/verify-publication.mjs",
     "test": "node --test \"test/**/*.test.mjs\"",
-    "clean": "rm -rf .astro dist public/packages"
+    "clean": "rm -rf .astro dist public/packages",
+    "check:registry": "node scripts/check-registry-neutrality.mjs",
+    "test:registry": "node --test scripts/check-registry-neutrality.node-test.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.1",
@@ -23,17 +25,15 @@
     "@hagicode/hagilight": "0.20.0",
     "@hagicode/hagilight-core": "0.20.0",
     "@hagicode/hagitask": "0.1.2",
-    "astro": "^7.3.8"
+    "astro": "^7.3.8",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "typescript": "~6.0.3"
   },
-  "overrides": {
-    "vite": "^8.0.1"
-  },
   "engines": {
     "node": ">=24.0.0",
-    "npm": ">=9.0"
+    "pnpm": ">=12.16.1"
   }
 }

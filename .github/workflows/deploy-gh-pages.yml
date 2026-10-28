@@ -87,29 +87,40 @@ jobs:
             echo "- Resolved commit: ${resolved}"
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify install and lockfile stability
+        run: |
+          test -d node_modules
+          git diff --exit-code -- pnpm-lock.yaml
+
+      - name: Registry neutrality
+        run: pnpm run check:registry
 
       - name: Build and verify site
         # Community task data and authoritative schemas are read from the
         # dynamic checkout pointed at by HAGITASK_COMMUNITY_SOURCE_DIR.
         env:
           HAGITASK_COMMUNITY_SOURCE_DIR: ${{ steps.community-checkout.outputs.source-dir }}
-        run: npm run build
+        run: pnpm run build
 
       - name: Stage HagiTask schemas into publication payload
         env:
           HAGITASK_COMMUNITY_SOURCE_DIR: ${{ steps.community-checkout.outputs.source-dir }}
-        run: npm run stage:schemas
+        run: pnpm run stage:schemas
 
       - name: Verify publication payload
-        run: npm run verify
+        run: pnpm run verify
 
       - name: Assemble gh-pages publication payload
         run: |
