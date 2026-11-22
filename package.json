@@ -24,7 +24,7 @@
     "@astrojs/mdx": "^8.0.2",
     "@hagicode/hagilight": "0.22.0",
     "@hagicode/hagilight-core": "0.22.0",
-    "@hagicode/hagitask": "0.1.2",
+    "@hagicode/hagitask": "0.1.0-dev.36",
     "astro": "^7.3.8",
     "sharp": "^0.35.5"
   },
