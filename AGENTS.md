@@ -13,7 +13,7 @@ HagiTask 的站点前端仓库（Astro + Vite 静态站点）。
 - 框架：Astro（基于 Vite 构建），路径别名 `@` 指向 `src`。
 - 组件默认使用 `.astro`；需要交互时使用 Astro 内置 islands（如需要时引入 React）。
 - 样式优先使用 Astro 组件作用域样式，`scopedStyleStrategy: 'where'`。
-- 目录：`src/pages/`（`index.astro`、`index.json.ts`、`tasks/`、`external-link-warning.astro`）、`src/layouts/BaseLayout.astro`、`src/components/`、`src/lib/`（`community-index.ts`、`external-links.ts` 等）、`src/integrations/communityPackages.ts`、`scripts/`（`schema-payload.mjs`、`verify-publication.mjs`、`community-commit.mjs`、`assert-sync-config.mjs`）、`test/*.test.mjs`、`docs/external-links.md`。
+- 目录：`src/pages/`（`index.astro`、`index.json.ts`、`tasks/`、`external-link-warning.astro`）、`src/layouts/BaseLayout.astro`、`src/components/`、`src/lib/`（`community-index.ts`、`external-links.ts` 等）、`src/integrations/communityPackages.ts`、`scripts/`（`schema-payload.mjs`、`verify-publication.mjs`、`community-commit.mjs`、`assert-sync-config.mjs`、`check-registry-neutrality.mjs`）、`test/*.test.mjs`、`docs/external-links.md`。
 
 ## 常用命令
 
@@ -26,24 +26,25 @@ pnpm run typecheck  # astro check
 pnpm run verify     # 校验发布产物（index/detail Schema、ZIP 摘要、URL 稳定性）
 pnpm run stage:schemas  # 把 @hagicode/hagitask 的 Schema 复制到 dist/schemas/
 pnpm test           # node --test "test/**/*.test.mjs"
+pnpm run check:registry  # 注册表中立性检查（部署工作流与本地均应通过）
 node scripts/assert-sync-config.mjs   # 校验同步工作流配置
 ```
 
 - 运行环境：Node.js 24+（`engines`，deploy 工作流使用 Node 24）。
-- 发布由 `.github/workflows/deploy-gh-pages.yml` 完成：build → `stage:schemas` → `verify` → 发布 gh-pages；本地改动应能通过同一序列。发布载荷由 `.github/gh-pages/`（`esa.jsonc`、`wrangler.jsonc`）加 `dist/` 组装为 artifact（含隐藏文件）后推送到 gh-pages 分支根目录。
+- 发布由 `.github/workflows/deploy-gh-pages.yml` 完成：`check:registry` → build → `stage:schemas` → `verify` → 发布 gh-pages；本地改动应能通过同一序列。发布载荷由 `.github/gh-pages/`（`esa.jsonc`、`wrangler.jsonc`）加 `dist/` 组装为 artifact（含隐藏文件）后推送到 gh-pages 分支根目录。
 - 设计与产品上下文见根目录 `PRODUCT.md` 与 `DESIGN.md`；首页主视觉为 `src/components/CatalogHero.astro`。
 
 ## 社区内容来源
 
 - 站点内容来自 `hagitask-community-packages`，**不再**以 Git submodule 挂载。最近一次成功发布的 Community 提交记录在根目录 `community-packages.commit`（单行 40 位小写 hex SHA）。
-- 构建优先从 `HAGITASK_COMMUNITY_SOURCE_DIR` 指向的 Community checkout 读取 `data/`；未设置时自动使用同级 `../hagitask-community-packages/`，再回退到本地 `community-packages/` checkout。`@hagicode/hagitask@0.1.2` 负责包源校验与发布 schema，`src/lib/community-index.ts` 继续对生成的 `/index.json` 与 `/tasks/<taskId>.json` 做 Schema 校验后发布。
+- 构建优先从 `HAGITASK_COMMUNITY_SOURCE_DIR` 指向的 Community checkout 读取 `data/`；未设置时自动使用同级 `../hagitask-community-packages/`，再回退到本地 `community-packages/` checkout。`@hagicode/hagitask@0.3.0` 负责包源校验与发布 schema，`src/lib/community-index.ts` 继续对生成的 `/index.json` 与 `/tasks/<taskId>.json` 做 Schema 校验后发布。
 - `Sync Community Content` 工作流（`.github/workflows/sync-community-content.yml`）定时/手动比较 Community `main` 与 `community-packages.commit`，仅在变化时触发 `HagiTask Site Deploy gh-pages`（传入精确 commit），并在其成功后回写状态文件。
 - 包的提交前校验在 Community 仓库内完成（`pnpm run validate`），本站点是发布前第二道防线。
 
 ## Schema 发布
 
 - 站点把 HagiTask 的 9 份权威 Schema 发布到 `/schemas/**`，公开根地址为 `https://tasks.hagicode.com/schemas/`，路径与源码目录一一对应。
-- 发布来源由 deploy 工作流在构建阶段 `shallow clone` 精确 Community commit 到 runner 临时目录并暴露 `HAGITASK_COMMUNITY_SOURCE_DIR`；Schema 从已安装的 `@hagicode/hagitask@0.1.2` 经 `pnpm run stage:schemas` 复制到 `dist/schemas/`。
+- 发布来源由 deploy 工作流在构建阶段 `shallow clone` 精确 Community commit 到 runner 临时目录并暴露 `HAGITASK_COMMUNITY_SOURCE_DIR`；Schema 从已安装的 `@hagicode/hagitask@0.3.0` 经 `pnpm run stage:schemas` 复制到 `dist/schemas/`。
 - 不要把 Schema 复制进站点源码；`scripts/schema-payload.mjs` 的 `EXPECTED_SCHEMA_PATHS` 是发布契约，新增或删除权威 Schema 时同步更新它和 `test/schema-payload.test.mjs`。
 
 ## 注意事项
